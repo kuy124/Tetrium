@@ -2,476 +2,441 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tetris Duel | Multiplayer</title>
-    <!-- PeerJS for WebRTC Peer-to-Peer -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tetris Duel | Pro</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-    <!-- Google Fonts for Modern Typography -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@500;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     
     <style>
-        /* --- UI & LAYOUT STYLES --- */
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --primary: #3b82f6;
-            --primary-hover: #2563eb;
-            --success: #10b981;
-            --success-hover: #059669;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border: #334155;
+            --bg: #0b0b0f;
+            --panel-bg: rgba(20, 20, 30, 0.8);
+            --border: #2a2a3f;
+            --accent: #00ffcc;
+            --text: #e0e0e0;
         }
 
+        * { box-sizing: border-box; touch-action: none; }
+        
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Rajdhani', sans-serif;
             margin: 0;
-            min-height: 100vh;
+            height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            overflow-x: hidden;
+            overflow: hidden;
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(0, 255, 204, 0.05) 0%, transparent 60%),
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 100% 100%, 30px 30px, 30px 30px;
         }
 
         h1 {
-            font-size: 3rem;
-            font-weight: 800;
-            margin-bottom: 5px;
-            background: -webkit-linear-gradient(45deg, #3b82f6, #10b981);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
+            font-family: 'Jura', sans-serif;
+            font-size: 2.5rem;
+            margin: 10px 0 5px 0;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            color: #fff;
+            text-shadow: 0 0 10px var(--accent);
         }
 
-        p.subtitle {
-            color: var(--text-muted);
-            margin-top: 0;
-            margin-bottom: 30px;
-        }
-
-        /* Menu Card */
+        /* --- MENU UI --- */
         #menu {
-            background: var(--card-bg);
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            background: var(--panel-bg);
+            padding: 30px;
+            border-radius: 12px;
             border: 1px solid var(--border);
-            width: 100%;
-            max-width: 400px;
+            backdrop-filter: blur(10px);
             text-align: center;
+            z-index: 10;
+            width: 90%;
+            max-width: 350px;
+            margin-top: 5vh;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
-        .menu-section {
-            margin-bottom: 25px;
-        }
-
-        .menu-section h3 {
-            margin-top: 0;
-            font-weight: 600;
-            color: var(--text-main);
-        }
-
-        .divider {
-            height: 1px;
-            background: var(--border);
-            margin: 25px 0;
-            position: relative;
-        }
-        .divider::after {
-            content: "OR";
-            position: absolute;
-            top: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--card-bg);
-            padding: 0 10px;
-            color: var(--text-muted);
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        /* Inputs & Buttons */
-        input {
-            width: calc(100% - 24px);
+        .menu-btn {
+            width: 100%;
             padding: 12px;
-            background: var(--bg-color);
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            color: var(--text-main);
-            font-size: 18px;
-            font-family: 'Poppins', sans-serif;
-            text-align: center;
-            margin-bottom: 15px;
-            outline: none;
-            transition: 0.3s;
-            letter-spacing: 2px;
-        }
-        input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
-        }
-
-        button {
-            width: 100%;
-            padding: 14px;
-            font-size: 16px;
-            font-weight: 600;
-            font-family: 'Poppins', sans-serif;
-            color: white;
-            background: var(--primary);
+            margin: 10px 0;
+            font-family: 'Jura', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #000;
+            background: var(--accent);
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            transition: 0.2s;
+            text-transform: uppercase;
         }
-        button:hover {
-            background: var(--primary-hover);
-            transform: translateY(-2px);
-        }
-        button.success { background: var(--success); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
-        button.success:hover { background: var(--success-hover); }
+        .menu-btn:hover { box-shadow: 0 0 15px var(--accent); transform: scale(1.02); }
 
-        .id-display-box {
-            display: none;
-            background: var(--bg-color);
-            padding: 15px;
-            border-radius: 8px;
-            border: 2px dashed var(--border);
-            margin-top: 15px;
-        }
-        .id-text { font-size: 32px; font-weight: 800; letter-spacing: 4px; color: var(--success); margin: 10px 0;}
-        
-        .copy-btn {
-            background: transparent;
-            border: 1px solid var(--text-muted);
-            padding: 6px 12px;
-            width: auto;
-            font-size: 12px;
-            border-radius: 4px;
-            color: var(--text-muted);
-            box-shadow: none;
-        }
-        .copy-btn:hover { background: rgba(255,255,255,0.1); color: white; border-color: white; transform: none;}
-
-        #status-badge {
-            display: inline-block;
-            padding: 6px 16px;
-            border-radius: 20px;
-            background: #475569;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            transition: 0.3s;
-        }
-
-        /* --- GAME BOARDS --- */
-        #game-container {
-            display: none;
-            gap: 40px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 20px;
-        }
-
-        .player-card {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 16px;
+        input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0,0,0,0.5);
             border: 1px solid var(--border);
+            color: var(--accent);
+            font-size: 1.5rem;
+            text-align: center;
+            border-radius: 6px;
+            font-family: monospace;
+            letter-spacing: 3px;
+        }
+        input:focus { outline: none; border-color: var(--accent); }
+
+        .id-box { font-size: 2rem; color: var(--accent); font-weight: bold; letter-spacing: 5px; margin: 15px 0; }
+        
+        #status { color: #aaa; margin-bottom: 10px; font-size: 1.1rem; }
+
+        /* --- GAME UI --- */
+        #game-wrapper {
+            display: none;
+            flex-direction: row;
+            gap: 20px;
+            height: 100%;
+            max-height: 800px;
+            padding: 10px;
+            width: 100%;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .player-area {
+            display: flex;
+            gap: 10px;
+            background: var(--panel-bg);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .box-title { font-size: 0.9rem; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;}
+        .canvas-box {
+            background: #000;
+            border: 2px solid #333;
+            border-radius: 5px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            padding: 5px;
         }
 
-        .player-card h2 { margin: 0 0 5px 0; color: var(--text-muted); font-size: 20px; }
-        .score { font-size: 28px; font-weight: 800; margin-bottom: 15px; color: var(--primary); }
-        .score-opponent { color: var(--success); }
-
-        canvas {
-            background-color: #000;
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.6);
-            border: 2px solid #334155;
+        canvas.main-board {
+            border: none;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
         }
 
-        .controls {
-            margin-top: 20px;
-            font-size: 13px;
-            color: var(--text-muted);
-            background: rgba(0,0,0,0.2);
-            padding: 10px 15px;
-            border-radius: 8px;
+        .score-display { font-size: 1.5rem; font-weight: bold; color: var(--accent); }
+
+        /* --- MOBILE CONTROLS --- */
+        #mobile-controls {
+            display: none;
+            width: 100%;
+            max-width: 500px;
+            padding: 10px;
+            gap: 10px;
+            margin-top: auto;
+            margin-bottom: 20px;
         }
-        kbd {
-            background: #334155;
-            padding: 2px 6px;
-            border-radius: 4px;
+        
+        .d-pad, .action-pad { display: grid; gap: 8px; flex: 1; }
+        .d-pad { grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 60px); }
+        .action-pad { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 60px); }
+        
+        .m-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
             color: white;
-            font-family: monospace;
+            border-radius: 8px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+        .m-btn:active { background: rgba(0, 255, 204, 0.4); }
+
+        .btn-up { grid-column: 2; grid-row: 1; }
+        .btn-left { grid-column: 1; grid-row: 2; }
+        .btn-down { grid-column: 2; grid-row: 2; }
+        .btn-right { grid-column: 3; grid-row: 2; }
+
+        @media (max-width: 800px) {
+            h1 { font-size: 1.8rem; }
+            #game-wrapper { flex-direction: column; align-items: center; overflow-y: auto; justify-content: flex-start; gap: 10px;}
+            .player-area { transform: scale(0.85); transform-origin: top center; margin-bottom: -30px;}
+            #remote-area { display: none; } /* Hide opponent board on small phones to save space */
+            #mobile-controls { display: flex; }
         }
     </style>
 </head>
 <body>
 
-    <h1>Tetris Duel</h1>
-    <p class="subtitle">Real-time Peer-to-Peer Multiplayer</p>
+    <h1>Tetris Duel Pro</h1>
+    <div id="status">Ready to connect</div>
 
-    <div id="status-badge">Waiting to start</div>
-
-    <!-- MAIN MENU -->
     <div id="menu">
-        <div class="menu-section">
-            <h3>Host a New Game</h3>
-            <button id="host-btn" onclick="hostGame()">Create Room</button>
-            
-            <div id="host-ui" class="id-display-box">
-                <div style="font-size: 14px; color: var(--text-muted);">Share this 5-digit code:</div>
-                <div class="id-text" id="room-id-display">-----</div>
-                <button class="copy-btn" onclick="copyId()">Copy Code</button>
-            </div>
+        <div id="menu-main">
+            <button class="menu-btn" onclick="hostGame()">Host Game</button>
+            <div style="margin: 20px 0; color: #666;">- OR -</div>
+            <input type="text" id="join-id" placeholder="5-DIGIT CODE" maxlength="5">
+            <button class="menu-btn" style="background: #ff0055; color: white;" onclick="joinGame()">Join Game</button>
         </div>
-
-        <div class="divider"></div>
-
-        <div class="menu-section">
-            <h3>Join a Friend</h3>
-            <input type="text" id="join-id" placeholder="Enter 5-digit code" maxlength="5">
-            <button class="success" onclick="joinGame()">Join Game</button>
+        <div id="menu-host" style="display:none;">
+            <p style="color: #aaa;">Share this code with your opponent:</p>
+            <div class="id-box" id="room-id-display">-----</div>
+            <button class="menu-btn" onclick="copyId()">Copy Code</button>
         </div>
     </div>
 
-    <!-- GAME AREA -->
-    <div id="game-container">
-        <!-- Local Player -->
-        <div class="player-card">
-            <h2>You</h2>
-            <div class="score" id="local-score">0</div>
-            <canvas id="localCanvas" width="240" height="400"></canvas>
-            <div class="controls">
-                <kbd>←</kbd> <kbd>→</kbd> Move &nbsp;|&nbsp; <kbd>↑</kbd> Rotate &nbsp;|&nbsp; <kbd>↓</kbd> Drop
+    <div id="game-wrapper">
+        <!-- LOCAL PLAYER -->
+        <div class="player-area" id="local-area">
+            <div class="side-panel">
+                <div class="canvas-box">
+                    <div class="box-title">Hold</div>
+                    <canvas id="hold-canvas" width="80" height="80"></canvas>
+                </div>
+                <div class="box-title">Score</div>
+                <div class="score-display" id="local-score">0</div>
+            </div>
+            <div class="canvas-box" style="padding: 0;">
+                <canvas id="main-canvas" class="main-board" width="240" height="480"></canvas>
+            </div>
+            <div class="side-panel">
+                <div class="canvas-box">
+                    <div class="box-title">Next</div>
+                    <canvas id="next-canvas" width="80" height="80"></canvas>
+                </div>
             </div>
         </div>
 
-        <!-- Remote Opponent -->
-        <div class="player-card">
-            <h2>Opponent</h2>
-            <div class="score score-opponent" id="remote-score">0</div>
-            <canvas id="remoteCanvas" width="240" height="400"></canvas>
-            <div class="controls" style="visibility: hidden;">
-                Placeholder
+        <!-- REMOTE OPPONENT -->
+        <div class="player-area" id="remote-area" style="opacity: 0.8; transform: scale(0.9);">
+            <div class="side-panel">
+                <div class="canvas-box">
+                    <div class="box-title">Hold</div>
+                    <canvas id="r-hold-canvas" width="80" height="80"></canvas>
+                </div>
+                <div class="box-title">Opponent</div>
+                <div class="score-display" id="remote-score" style="color:#ff0055;">0</div>
             </div>
+            <div class="canvas-box" style="padding: 0;">
+                <canvas id="r-main-canvas" class="main-board" width="240" height="480"></canvas>
+            </div>
+            <div class="side-panel">
+                <div class="canvas-box">
+                    <div class="box-title">Next</div>
+                    <canvas id="r-next-canvas" width="80" height="80"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MOBILE CONTROLS -->
+    <div id="mobile-controls">
+        <div class="d-pad">
+            <div class="m-btn btn-up" id="m-hd">⇈</div> <!-- Hard Drop -->
+            <div class="m-btn btn-left" id="m-l">←</div>
+            <div class="m-btn btn-down" id="m-d">↓</div>
+            <div class="m-btn btn-right" id="m-r">→</div>
+        </div>
+        <div class="action-pad">
+            <div class="m-btn" id="m-ccw">↺</div>
+            <div class="m-btn" id="m-cw">↻</div>
+            <div class="m-btn" style="grid-column: span 2;" id="m-hold">HOLD</div>
         </div>
     </div>
 
     <script>
-        // --- PEER-TO-PEER MULTIPLAYER LOGIC ---
-        let peer;
-        let connection;
+        // ==========================================
+        // MULTIPLAYER (PEERJS) LOGIC
+        // ==========================================
+        let peer, connection;
         let isMultiplayer = false;
-        let myShortId = "";
+        let myId = "";
 
-        // Generates a random 5-digit number to make typing easy
-        function generateShortId() {
-            return Math.floor(10000 + Math.random() * 90000).toString();
-        }
+        const setStatus = (msg, color="#fff") => {
+            const el = document.getElementById('status');
+            el.innerText = msg;
+            el.style.color = color;
+        };
 
-        function updateStatus(msg, color) {
-            const badge = document.getElementById('status-badge');
-            badge.innerText = msg;
-            badge.style.backgroundColor = color || '#475569';
-        }
-
-        // Host clicks "Create Room"
         function hostGame() {
-            document.getElementById('host-btn').style.display = 'none';
-            document.getElementById('host-ui').style.display = 'block';
+            document.getElementById('menu-main').style.display = 'none';
+            document.getElementById('menu-host').style.display = 'block';
             
-            myShortId = generateShortId();
-            document.getElementById('room-id-display').innerText = myShortId;
-            updateStatus("Waiting for opponent...", "#eab308"); // Yellow
+            myId = Math.floor(10000 + Math.random() * 90000).toString();
+            document.getElementById('room-id-display').innerText = myId;
+            setStatus("Waiting for opponent...", "#00ffcc");
 
-            // Force PeerJS to use our easy 5-digit ID
-            peer = new Peer(myShortId);
-
+            peer = new Peer(myId);
             peer.on('connection', conn => {
                 connection = conn;
-                setupConnection();
-                startGame();
-            });
-
-            peer.on('error', err => {
-                alert("Error: " + err.type);
-                document.getElementById('host-btn').style.display = 'block';
-                document.getElementById('host-ui').style.display = 'none';
+                initConnection();
             });
         }
 
-        // Player clicks "Join Game"
         function joinGame() {
             const roomId = document.getElementById('join-id').value.trim();
-            if (roomId.length !== 5) return alert("Please enter a valid 5-digit code");
+            if(roomId.length !== 5) return alert("Enter 5-digit code");
             
-            updateStatus("Connecting...", "#eab308");
-            
-            // Joiner gets a random default ID, connects to Host's 5-digit ID
+            setStatus("Connecting...", "#ff0055");
             peer = new Peer();
-            
             peer.on('open', () => {
                 connection = peer.connect(roomId);
-                
-                connection.on('open', () => {
-                    setupConnection();
-                    startGame();
-                });
-
-                connection.on('error', () => alert("Connection failed. Check the code."));
+                connection.on('open', initConnection);
+                connection.on('error', () => setStatus("Connection failed", "red"));
             });
         }
 
-        function setupConnection() {
+        function initConnection() {
             isMultiplayer = true;
-            updateStatus("Connected! Game On!", "#10b981"); // Green
+            setStatus("Connected! MATCH START", "#00ffcc");
+            document.getElementById('menu').style.display = 'none';
+            document.getElementById('game-wrapper').style.display = 'flex';
             
-            // Receive data from opponent
             connection.on('data', data => {
-                if (data.type === 'gameState') {
-                    drawRemoteBoard(data.matrix);
-                    document.getElementById('remote-score').innerText = data.score;
-                }
+                if(data.type === 'state') updateRemoteState(data);
             });
 
-            connection.on('close', () => {
-                updateStatus("Opponent Disconnected", "#ef4444"); // Red
-                gameRunning = false;
-            });
-        }
-
-        // Send local game board and piece to opponent
-        function sendGameState() {
-            if (isMultiplayer && connection && connection.open) {
-                // Combine frozen arena blocks with active falling piece
-                const combinedMatrix = createMatrix(12, 20);
-                for (let y = 0; y < arena.length; ++y) {
-                    for (let x = 0; x < arena[y].length; ++x) {
-                        combinedMatrix[y][x] = arena[y][x];
-                    }
-                }
-                player.matrix.forEach((row, y) => {
-                    row.forEach((value, x) => {
-                        if (value !== 0) {
-                            if (combinedMatrix[y + player.pos.y] && combinedMatrix[y + player.pos.y][x + player.pos.x] !== undefined) {
-                                combinedMatrix[y + player.pos.y][x + player.pos.x] = value;
-                            }
-                        }
-                    });
-                });
-
-                connection.send({
-                    type: 'gameState',
-                    matrix: combinedMatrix,
-                    score: player.score
-                });
-            }
+            startGame();
         }
 
         function copyId() {
-            navigator.clipboard.writeText(myShortId);
-            const btn = document.querySelector('.copy-btn');
-            btn.innerText = "Copied!";
-            setTimeout(() => btn.innerText = "Copy Code", 2000);
+            navigator.clipboard.writeText(myId);
         }
 
-        // --- TETRIS GAME LOGIC ---
-        const canvas = document.getElementById('localCanvas');
-        const context = canvas.getContext('2d');
-        const remoteCanvas = document.getElementById('remoteCanvas');
-        const remoteContext = remoteCanvas.getContext('2d');
+        function broadcastState() {
+            if(!isMultiplayer || !connection) return;
+            connection.send({
+                type: 'state',
+                arena: arena,
+                player: player,
+                ghostY: getGhostY(),
+                hold: holdPiece,
+                next: nextPiece,
+                score: player.score
+            });
+        }
 
-        // Scale up by 20 to make a 12x20 grid fit into 240x400 canvas
-        context.scale(20, 20);
-        remoteContext.scale(20, 20);
+        // ==========================================
+        // TETRIS ENGINE
+        // ==========================================
+        const COLS = 10, ROWS = 20, BLOCK_SIZE = 24;
+        
+        // Contexts
+        const ctxMain = document.getElementById('main-canvas').getContext('2d');
+        const ctxHold = document.getElementById('hold-canvas').getContext('2d');
+        const ctxNext = document.getElementById('next-canvas').getContext('2d');
+        
+        const rctxMain = document.getElementById('r-main-canvas').getContext('2d');
+        const rctxHold = document.getElementById('r-hold-canvas').getContext('2d');
+        const rctxNext = document.getElementById('r-next-canvas').getContext('2d');
 
-        // Vibrant Tetris Colors
+        [ctxMain, rctxMain].forEach(ctx => ctx.scale(BLOCK_SIZE, BLOCK_SIZE));
+        [ctxHold, ctxNext, rctxHold, rctxNext].forEach(ctx => ctx.scale(20, 20)); // scale for side panels
+
+        // Tetr.io Color Palette
         const colors = [
             null,
-            '#ef4444', // Red (Z)
-            '#3b82f6', // Blue (J)
-            '#10b981', // Green (S)
-            '#a855f7', // Purple (T)
-            '#f59e0b', // Orange (L)
-            '#eab308', // Yellow (O)
-            '#06b6d4'  // Cyan (I)
+            '#ff0f0f', // Z - Red
+            '#ff7f00', // L - Orange
+            '#ffe138', // O - Yellow
+            '#0f9bd7', // J - Blue
+            '#2141c6', // I - Cyan (Adjusted to visible blue)
+            '#59b101', // S - Green
+            '#af298a'  // T - Purple
         ];
+        // Replacing Cyan with lighter blue for visual pop
+        colors[5] = '#00ffff'; 
 
-        function createMatrix(w, h) {
-            const matrix = [];
-            while (h--) { matrix.push(new Array(w).fill(0)); }
-            return matrix;
-        }
+        const pieces = {
+            'Z': [[1,1,0],[0,1,1],[0,0,0]],
+            'L': [[0,0,2],[2,2,2],[0,0,0]],
+            'O': [[3,3],[3,3]],
+            'J': [[4,0,0],[4,4,4],[0,0,0]],
+            'I': [[0,0,0,0],[5,5,5,5],[0,0,0,0],[0,0,0,0]],
+            'S': [[0,6,6],[6,6,0],[0,0,0]],
+            'T': [[0,7,0],[7,7,7],[0,0,0]]
+        };
 
-        function createPiece(type) {
-            if (type === 'I') return [[0,7,0,0],[0,7,0,0],[0,7,0,0],[0,7,0,0]];
-            if (type === 'L') return [[0,5,0],[0,5,0],[0,5,5]];
-            if (type === 'J') return [[0,2,0],[0,2,0],[2,2,0]];
-            if (type === 'O') return [[6,6],[6,6]];
-            if (type === 'Z') return [[1,1,0],[0,1,1],[0,0,0]];
-            if (type === 'S') return [[0,3,3],[3,3,0],[0,0,0]];
-            if (type === 'T') return [[0,0,0],[4,4,4],[0,4,0]];
-        }
+        let arena = createMatrix(COLS, ROWS);
+        let bag = [];
+        let nextPiece = null;
+        let holdPiece = null;
+        let canHold = true;
+        let gameRunning = false;
 
-        function drawMatrix(matrix, offset, ctx) {
-            matrix.forEach((row, y) => {
-                row.forEach((value, x) => {
-                    if (value !== 0) {
-                        ctx.fillStyle = colors[value];
-                        ctx.fillRect(x + offset.x, y + offset.y, 1, 1);
-                        // Add slight inner border for block effect
-                        ctx.fillStyle = 'rgba(0,0,0,0.3)';
-                        ctx.fillRect(x + offset.x, y + offset.y, 1, 0.1); // top shading
-                        ctx.fillRect(x + offset.x, y + offset.y, 0.1, 1); // left shading
-                    }
-                });
-            });
-        }
-
-        const arena = createMatrix(12, 20);
         const player = { pos: {x: 0, y: 0}, matrix: null, score: 0 };
 
-        function draw() {
-            context.fillStyle = '#000';
-            context.fillRect(0, 0, canvas.width, canvas.height);
-            drawMatrix(arena, {x: 0, y: 0}, context);
-            drawMatrix(player.matrix, player.pos, context);
+        function createMatrix(w, h) {
+            const m = [];
+            while (h--) m.push(new Array(w).fill(0));
+            return m;
         }
 
-        function drawRemoteBoard(matrix) {
-            remoteContext.fillStyle = '#000';
-            remoteContext.fillRect(0, 0, remoteCanvas.width, remoteCanvas.height);
-            drawMatrix(matrix, {x: 0, y: 0}, remoteContext);
+        // 7-Bag Randomizer
+        function getNextBagPiece() {
+            if (bag.length === 0) {
+                bag = ['I','J','L','O','S','T','Z'];
+                bag.sort(() => Math.random() - 0.5);
+            }
+            return pieces[bag.pop()];
         }
 
-        function merge(arena, player) {
-            player.matrix.forEach((row, y) => {
-                row.forEach((value, x) => {
-                    if (value !== 0) {
-                        arena[y + player.pos.y][x + player.pos.x] = value;
-                    }
-                });
-            });
+        function resetPlayer() {
+            if(!nextPiece) nextPiece = getNextBagPiece();
+            player.matrix = nextPiece;
+            nextPiece = getNextBagPiece();
+            player.pos.y = 0;
+            player.pos.x = Math.floor(COLS/2) - Math.floor(player.matrix[0].length/2);
+            canHold = true;
+
+            if (collide(arena, player)) {
+                arena.forEach(row => row.fill(0));
+                player.score = 0;
+                holdPiece = null;
+            }
+            broadcastState();
         }
 
-        function collide(arena, player) {
-            const m = player.matrix;
-            const o = player.pos;
+        function hold() {
+            if (!canHold) return;
+            const current = player.matrix;
+            if (holdPiece) {
+                player.matrix = holdPiece;
+                holdPiece = current;
+                player.pos.y = 0;
+                player.pos.x = Math.floor(COLS/2) - Math.floor(player.matrix[0].length/2);
+            } else {
+                holdPiece = current;
+                resetPlayer();
+            }
+            canHold = false;
+            broadcastState();
+        }
+
+        // --- COLLISION & MOVEMENT ---
+        function collide(board, obj) {
+            const [m, o] = [obj.matrix, obj.pos];
             for (let y = 0; y < m.length; ++y) {
                 for (let x = 0; x < m[y].length; ++x) {
-                    if (m[y][x] !== 0 && (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0) {
+                    if (m[y][x] !== 0 && (board[y + o.y] && board[y + o.y][x + o.x]) !== 0) {
                         return true;
                     }
                 }
@@ -479,66 +444,15 @@
             return false;
         }
 
-        function playerDrop() {
-            player.pos.y++;
-            if (collide(arena, player)) {
-                player.pos.y--;
-                merge(arena, player);
-                playerReset();
-                arenaSweep();
-            }
-            dropCounter = 0;
-            sendGameState();
+        function merge(board, obj) {
+            obj.matrix.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value !== 0) board[y + obj.pos.y][x + obj.pos.x] = value;
+                });
+            });
         }
 
-        function playerMove(offset) {
-            player.pos.x += offset;
-            if (collide(arena, player)) { player.pos.x -= offset; }
-            sendGameState();
-        }
-
-        function playerRotate(dir) {
-            const pos = player.pos.x;
-            let offset = 1;
-            rotate(player.matrix, dir);
-            while (collide(arena, player)) {
-                player.pos.x += offset;
-                offset = -(offset + (offset > 0 ? 1 : -1));
-                if (offset > player.matrix[0].length) {
-                    rotate(player.matrix, -dir);
-                    player.pos.x = pos;
-                    return;
-                }
-            }
-            sendGameState();
-        }
-
-        function rotate(matrix, dir) {
-            for (let y = 0; y < matrix.length; ++y) {
-                for (let x = 0; x < y; ++x) {
-                    [matrix[x][y], matrix[y][x]] = [matrix[y][x], matrix[x][y]];
-                }
-            }
-            if (dir > 0) { matrix.forEach(row => row.reverse()); } 
-            else { matrix.reverse(); }
-        }
-
-        function playerReset() {
-            const pieces = 'TJLOSZI';
-            player.matrix = createPiece(pieces[pieces.length * Math.random() | 0]);
-            player.pos.y = 0;
-            player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
-            
-            // Game Over Condition
-            if (collide(arena, player)) {
-                arena.forEach(row => row.fill(0));
-                player.score = 0;
-                updateScore();
-            }
-            sendGameState();
-        }
-
-        function arenaSweep() {
+        function sweep() {
             let rowCount = 1;
             outer: for (let y = arena.length - 1; y >= 0; --y) {
                 for (let x = 0; x < arena[y].length; ++x) {
@@ -547,20 +461,147 @@
                 const row = arena.splice(y, 1)[0].fill(0);
                 arena.unshift(row);
                 ++y;
-                player.score += rowCount * 10;
-                rowCount *= 2; // Bonus for multiple lines
+                player.score += rowCount * 100;
+                rowCount *= 2;
             }
-            updateScore();
-        }
-
-        function updateScore() {
             document.getElementById('local-score').innerText = player.score;
         }
 
+        function move(dir) {
+            player.pos.x += dir;
+            if (collide(arena, player)) player.pos.x -= dir;
+            broadcastState();
+        }
+
+        function drop() {
+            player.pos.y++;
+            if (collide(arena, player)) {
+                player.pos.y--;
+                merge(arena, player);
+                sweep();
+                resetPlayer();
+            }
+            dropCounter = 0;
+            broadcastState();
+        }
+
+        function getGhostY() {
+            let ghostY = player.pos.y;
+            while (!collide(arena, { matrix: player.matrix, pos: { x: player.pos.x, y: ghostY + 1 } })) {
+                ghostY++;
+            }
+            return ghostY;
+        }
+
+        function hardDrop() {
+            player.pos.y = getGhostY();
+            merge(arena, player);
+            sweep();
+            resetPlayer();
+            dropCounter = 0;
+            broadcastState();
+        }
+
+        function rotate(dir) {
+            const pos = player.pos.x;
+            let offset = 1;
+            // Transpose & Reverse
+            for (let y = 0; y < player.matrix.length; ++y) {
+                for (let x = 0; x < y; ++x) {
+                    [player.matrix[x][y], player.matrix[y][x]] = [player.matrix[y][x], player.matrix[x][y]];
+                }
+            }
+            if (dir > 0) player.matrix.forEach(r => r.reverse());
+            else player.matrix.reverse();
+            
+            // Wall Kick logic
+            while (collide(arena, player)) {
+                player.pos.x += offset;
+                offset = -(offset + (offset > 0 ? 1 : -1));
+                if (offset > player.matrix[0].length) {
+                    // Undo rotation if failed
+                    rotate(-dir);
+                    player.pos.x = pos;
+                    return;
+                }
+            }
+            broadcastState();
+        }
+
+        // --- DRAWING ---
+        function drawGrid(ctx, w, h) {
+            ctx.lineWidth = 0.05;
+            ctx.strokeStyle = '#222';
+            for(let i=0; i<=w; i++){ ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,h); ctx.stroke(); }
+            for(let i=0; i<=h; i++){ ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(w,i); ctx.stroke(); }
+        }
+
+        function drawMatrix(matrix, offset, ctx, alpha=1) {
+            if(!matrix) return;
+            matrix.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value !== 0) {
+                        ctx.globalAlpha = alpha;
+                        ctx.fillStyle = colors[value];
+                        ctx.fillRect(x + offset.x, y + offset.y, 1, 1);
+                        
+                        // Inner Glow / Bevel
+                        ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                        ctx.fillRect(x + offset.x, y + offset.y, 1, 0.1); // top
+                        ctx.fillRect(x + offset.x, y + offset.y, 0.1, 1); // left
+                        ctx.fillStyle = 'rgba(0,0,0,0.4)';
+                        ctx.fillRect(x + offset.x, y + offset.y + 0.9, 1, 0.1); // bottom
+                        ctx.fillRect(x + offset.x + 0.9, y + offset.y, 0.1, 1); // right
+                        ctx.globalAlpha = 1;
+                    }
+                });
+            });
+        }
+
+        function drawBoxPiece(matrix, ctx) {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0,0,4,4);
+            if(!matrix) return;
+            // Center the piece in the 4x4 mini box
+            const offset = {
+                x: (4 - matrix[0].length)/2,
+                y: (4 - matrix.length)/2
+            };
+            drawMatrix(matrix, offset, ctx);
+        }
+
+        function drawLocal() {
+            ctxMain.fillStyle = '#0a0a0a';
+            ctxMain.fillRect(0, 0, COLS, ROWS);
+            drawGrid(ctxMain, COLS, ROWS);
+
+            drawMatrix(arena, {x:0, y:0}, ctxMain);
+            // Draw Ghost
+            drawMatrix(player.matrix, {x: player.pos.x, y: getGhostY()}, ctxMain, 0.2);
+            // Draw Player
+            drawMatrix(player.matrix, player.pos, ctxMain);
+
+            drawBoxPiece(holdPiece, ctxHold);
+            drawBoxPiece(nextPiece, ctxNext);
+        }
+
+        function updateRemoteState(data) {
+            rctxMain.fillStyle = '#0a0a0a';
+            rctxMain.fillRect(0, 0, COLS, ROWS);
+            drawGrid(rctxMain, COLS, ROWS);
+
+            drawMatrix(data.arena, {x:0, y:0}, rctxMain);
+            drawMatrix(data.player.matrix, {x: data.player.pos.x, y: data.ghostY}, rctxMain, 0.2);
+            drawMatrix(data.player.matrix, data.player.pos, rctxMain);
+
+            drawBoxPiece(data.hold, rctxHold);
+            drawBoxPiece(data.next, rctxNext);
+            document.getElementById('remote-score').innerText = data.score;
+        }
+
+        // --- GAME LOOP ---
         let dropCounter = 0;
-        let dropInterval = 1000;
         let lastTime = 0;
-        let gameRunning = false;
 
         function update(time = 0) {
             if(!gameRunning) return;
@@ -568,34 +609,56 @@
             lastTime = time;
 
             dropCounter += deltaTime;
-            if (dropCounter > dropInterval) { playerDrop(); }
+            if (dropCounter > 1000) drop();
 
-            draw();
+            drawLocal();
             requestAnimationFrame(update);
         }
 
         function startGame() {
-            document.getElementById('menu').style.display = 'none';
-            document.getElementById('game-container').style.display = 'flex';
-            playerReset();
             gameRunning = true;
+            resetPlayer();
             update();
         }
 
-        // --- KEYBOARD CONTROLS ---
-        document.addEventListener('keydown', event => {
+        // --- INPUTS (Desktop & Mobile) ---
+        document.addEventListener('keydown', e => {
             if(!gameRunning) return;
-            
-            if (event.keyCode === 37) { playerMove(-1); } // Left Arrow
-            else if (event.keyCode === 39) { playerMove(1); } // Right Arrow
-            else if (event.keyCode === 40) { playerDrop(); } // Down Arrow
-            else if (event.keyCode === 38) { playerRotate(1); } // Up Arrow
-            
-            // Prevent window scrolling when playing
-            if([37, 38, 39, 40].indexOf(event.keyCode) > -1) {
-                event.preventDefault();
+            switch(e.code) {
+                case 'ArrowLeft': move(-1); break;
+                case 'ArrowRight': move(1); break;
+                case 'ArrowDown': drop(); break;
+                case 'ArrowUp': 
+                case 'KeyX': rotate(1); break;
+                case 'KeyZ': rotate(-1); break;
+                case 'Space': hardDrop(); break;
+                case 'ShiftLeft':
+                case 'ShiftRight':
+                case 'KeyC': hold(); break;
             }
         });
+
+        // Mobile Button Handlers
+        const bindBtn = (id, action) => {
+            const btn = document.getElementById(id);
+            if(!btn) return;
+            // Prevent default stops zooming and double-tap issues
+            btn.addEventListener('touchstart', e => { e.preventDefault(); action(); });
+        };
+
+        bindBtn('m-l', () => move(-1));
+        bindBtn('m-r', () => move(1));
+        bindBtn('m-d', drop);
+        bindBtn('m-hd', hardDrop);
+        bindBtn('m-cw', () => rotate(1));
+        bindBtn('m-ccw', () => rotate(-1));
+        bindBtn('m-hold', hold);
+
+        // Prevent mobile scrolling while dragging on the canvas
+        document.addEventListener('touchmove', e => {
+            if(gameRunning) e.preventDefault();
+        }, { passive: false });
+
     </script>
 </body>
 </html>
