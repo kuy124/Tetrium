@@ -20,15 +20,7 @@
             --primary-hover: #4338CA;
             --danger: #EF4444;
             --success: #22C55E;
-
-            /* Tetris Piece Colors */
-            --piece-z: #EF4444; /* Red */
-            --piece-l: #F97316; /* Orange */
-            --piece-o: #FACC15; /* Yellow */
-            --piece-j: #2563EB; /* Blue */
-            --piece-i: #06B6D4; /* Cyan */
-            --piece-s: #22C55E; /* Green */
-            --piece-t: #A855F7; /* Purple */
+            --warning: #F59E0B;
         }
 
         * { box-sizing: border-box; }
@@ -77,52 +69,29 @@
         }
 
         .title { 
-            font-size: 32px; 
-            font-weight: 800; 
-            margin-bottom: 32px; 
-            letter-spacing: -1px;
-            display: flex;
-            justify-content: center;
-            gap: 2px;
+            font-size: 32px; font-weight: 800; margin-bottom: 32px; letter-spacing: -1px;
+            display: flex; justify-content: center; gap: 2px;
         }
-        .title span:nth-child(1) { color: var(--piece-z); }
-        .title span:nth-child(2) { color: var(--piece-l); }
-        .title span:nth-child(3) { color: var(--piece-o); }
-        .title span:nth-child(4) { color: var(--piece-s); }
-        .title span:nth-child(5) { color: var(--piece-i); }
-        .title span:nth-child(6) { color: var(--piece-j); }
+        .title span:nth-child(1) { color: #EF4444; } /* Z */
+        .title span:nth-child(2) { color: #F97316; } /* L */
+        .title span:nth-child(3) { color: #FACC15; } /* O */
+        .title span:nth-child(4) { color: #22C55E; } /* S */
+        .title span:nth-child(5) { color: #06B6D4; } /* I */
+        .title span:nth-child(6) { color: #2563EB; } /* J */
         .title-pro { color: var(--text-main) !important; margin-left: 8px; font-style: italic; opacity: 0.9;}
 
         input {
-            width: 100%;
-            padding: 14px 16px;
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid var(--border);
-            color: var(--text-main);
-            font-size: 16px;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            font-family: 'Inter', sans-serif;
-            transition: all 0.2s;
-            text-align: center;
-            letter-spacing: 1px;
+            width: 100%; padding: 14px 16px; background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border); color: var(--text-main); font-size: 16px;
+            border-radius: 8px; margin-bottom: 16px; font-family: 'Inter', sans-serif;
+            transition: all 0.2s; text-align: center; letter-spacing: 1px;
         }
         input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2); }
 
         button {
-            width: 100%;
-            padding: 14px;
-            font-size: 16px;
-            font-weight: 600;
-            color: white;
-            background: var(--primary);
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            width: 100%; padding: 14px; font-size: 16px; font-weight: 600; color: white;
+            background: var(--primary); border: none; border-radius: 8px; cursor: pointer;
+            transition: all 0.2s; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;
         }
         button:hover { background: var(--primary-hover); transform: translateY(-1px); }
         button:active { transform: translateY(1px); }
@@ -131,18 +100,8 @@
         .btn-secondary { background: var(--surface-hover); border: 1px solid var(--border); }
         .btn-secondary:hover { background: #262E3D; }
 
-        .divider {
-            display: flex;
-            align-items: center;
-            margin: 20px 0;
-            color: var(--text-muted);
-            font-size: 12px;
-            text-transform: uppercase;
-            font-weight: 600;
-        }
-        .divider::before, .divider::after {
-            content: ''; flex: 1; border-bottom: 1px solid var(--border); margin: 0 16px;
-        }
+        .divider { display: flex; align-items: center; margin: 20px 0; color: var(--text-muted); font-size: 12px; text-transform: uppercase; font-weight: 600; }
+        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border); margin: 0 16px; }
 
         #error-msg { 
             background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3);
@@ -150,119 +109,52 @@
             margin-bottom: 20px; display: none; font-weight: 500;
         }
         
-        .code-display {
-            font-size: 40px; font-weight: 800; font-family: 'JetBrains Mono', monospace;
-            letter-spacing: 8px; color: var(--primary); margin: 16px 0;
-            text-shadow: 0 0 20px rgba(79, 70, 229, 0.4);
-        }
+        .code-display { font-size: 40px; font-weight: 800; font-family: 'JetBrains Mono', monospace; letter-spacing: 8px; color: var(--primary); margin: 16px 0; text-shadow: 0 0 20px rgba(79, 70, 229, 0.4); }
 
-        .player-list {
-            text-align: left; background: rgba(0,0,0,0.2); border: 1px solid var(--border);
-            border-radius: 8px; padding: 8px; max-height: 200px; overflow-y: auto; margin-bottom: 24px;
-        }
+        .player-list { text-align: left; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 8px; padding: 8px; max-height: 200px; overflow-y: auto; margin-bottom: 24px; }
         .player-item { padding: 12px; border-bottom: 1px solid var(--border); font-size: 14px; font-weight: 500; display: flex; align-items: center; }
         .player-item::before { content: ''; width: 8px; height: 8px; background: var(--success); border-radius: 50%; margin-right: 12px; box-shadow: 0 0 8px var(--success); }
         .player-item:last-child { border-bottom: none; }
 
         /* --- GAME UI --- */
-        #game-layout {
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            height: 100%;
-            padding: 24px;
-            gap: 40px;
-        }
+        #game-layout { display: flex; flex-direction: row; justify-content: center; align-items: center; width: 100%; height: 100%; padding: 24px; gap: 40px; }
 
         /* Opponents Section */
-        #opponents-area {
-            display: flex;
-            flex-wrap: wrap;
-            align-content: center;
-            justify-content: center;
-            gap: 20px;
-            width: 320px;
-            height: 100%;
-            overflow-y: auto;
-        }
+        #opponents-area { display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: 20px; width: 340px; height: 100%; overflow-y: auto; }
 
-        .opponent-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: fit-content;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-        }
-        .opponent-name { font-size: 13px; font-weight: 600; color: var(--text-main); margin-bottom: 8px; max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-transform: uppercase;}
-        .opponent-canvas-wrapper {
-            position: relative;
-            background: #000; 
-            border: 2px solid var(--border);
-            border-radius: 4px;
-        }
+        .opponent-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; align-items: center; width: fit-content; box-shadow: 0 10px 20px rgba(0,0,0,0.5); position: relative; }
+        .opponent-name { font-size: 13px; font-weight: 600; color: var(--text-main); margin-bottom: 8px; max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-transform: uppercase; }
+        .opponent-canvas-wrapper { position: relative; background: #000; border: 2px solid var(--border); border-radius: 4px; }
         .opponent-canvas { display: block; }
-        .opponent-score {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 14px; color: var(--primary); font-weight: 700; margin-top: 10px;
-        }
+        .opponent-score { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--primary); font-weight: 700; margin-top: 10px; }
+        .opponent-status { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); color: var(--danger); font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 20px; display: none; }
 
         /* Main Player Section */
-        #my-area {
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            gap: 24px;
-        }
+        #my-area { display: flex; justify-content: center; align-items: flex-start; gap: 24px; }
 
         .side-panel { display: flex; flex-direction: column; gap: 20px; }
-
-        .info-box {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 16px;
-            text-align: center;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-            min-width: 110px;
-        }
+        .info-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.5); min-width: 110px; }
         .info-title { font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
         .info-value { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 700; color: var(--primary); }
         
-        .main-canvas-container {
-            position: relative;
-            background: rgba(0,0,0,0.6);
-            border: 3px solid var(--border);
-            border-radius: 12px;
-            padding: 4px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
-        }
-
+        .main-canvas-container { position: relative; background: rgba(0,0,0,0.6); border: 3px solid var(--border); border-radius: 12px; padding: 4px; box-shadow: 0 20px 40px rgba(0,0,0,0.8); }
         canvas { display: block; }
 
-        .game-over-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.85);
-            color: var(--danger);
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            font-weight: 800;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            border-radius: 8px;
-            text-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+        .game-overlay {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.85); display: none; flex-direction: column;
+            align-items: center; justify-content: center; border-radius: 8px; z-index: 10;
+        }
+        .overlay-text { font-size: 24px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; text-align: center; padding: 0 10px;}
+        .text-danger { color: var(--danger); text-shadow: 0 0 20px rgba(239, 68, 68, 0.6); }
+        .text-success { color: var(--success); text-shadow: 0 0 20px rgba(34, 197, 94, 0.6); }
+        .overlay-sub { font-size: 14px; color: var(--text-muted); margin-top: 10px; letter-spacing: 1px; }
+
+        #attack-alert {
+            position: absolute; top: 20%; left: -60px; color: var(--warning); font-weight: 800; font-size: 24px; 
+            text-shadow: 0 0 10px var(--warning); opacity: 0; transition: opacity 0.3s;
         }
 
-        /* Responsive Layout */
         @media (max-width: 900px) {
             #game-layout { flex-direction: column-reverse; padding: 16px; gap: 20px;}
             #opponents-area { width: 100%; flex-direction: row; height: auto; }
@@ -276,13 +168,10 @@
     <div id="screen-setup" class="screen active">
         <div class="panel">
             <div class="title">
-                <span>T</span><span>E</span><span>T</span><span>R</span><span>I</span><span>S</span>
-                <span class="title-pro">PRO</span>
+                <span>T</span><span>E</span><span>T</span><span>R</span><span>I</span><span>S</span><span class="title-pro">PRO</span>
             </div>
             <div id="error-msg"></div>
-            
             <input type="text" id="username" placeholder="Enter your Name" maxlength="12">
-            
             <button onclick="createRoom()">Host New Game</button>
             <div class="divider">OR</div>
             <input type="text" id="join-code" placeholder="5-Digit Room Code" maxlength="5">
@@ -293,19 +182,14 @@
     <!-- 2. LOBBY SCREEN -->
     <div id="screen-lobby" class="screen">
         <div class="panel">
-            <div class="title" style="font-size: 24px;">LOBBY</div>
+            <div class="title" style="font-size: 24px; color: white;">LOBBY</div>
             <div id="lobby-code-area" style="display:none; margin-bottom: 24px;">
                 <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 1px;">Room Code</div>
                 <div class="code-display" id="lobby-code">-----</div>
             </div>
-            
             <div style="font-size: 12px; color: var(--text-muted); text-align: left; margin-bottom: 8px; text-transform: uppercase; font-weight: 600;">Players Connected</div>
-            <div class="player-list" id="player-list">
-                <!-- Players injected here -->
-            </div>
-
+            <div class="player-list" id="player-list"></div>
             <div id="lobby-status" style="font-size: 14px; color: var(--primary); margin-bottom: 16px; font-weight: 500;">Waiting for host to start...</div>
-            
             <button id="btn-start" onclick="startGameAsHost()" style="display:none;">Start Match</button>
         </div>
     </div>
@@ -313,13 +197,8 @@
     <!-- 3. GAME SCREEN -->
     <div id="screen-game" class="screen">
         <div id="game-layout">
-            
-            <!-- Opponents Grid -->
-            <div id="opponents-area">
-                <!-- Opponent cards generated here -->
-            </div>
+            <div id="opponents-area"></div>
 
-            <!-- Your Board Center -->
             <div id="my-area">
                 <div class="side-panel">
                     <div class="info-box">
@@ -334,7 +213,13 @@
 
                 <div class="main-canvas-container">
                     <canvas id="canvas-main"></canvas>
-                    <div id="game-over-overlay" class="game-over-overlay">GAME OVER</div>
+                    <div id="attack-alert">ATTACK!</div>
+                    
+                    <div id="game-overlay" class="game-overlay">
+                        <div id="overlay-msg" class="overlay-text text-danger">GAME OVER</div>
+                        <div id="overlay-sub" class="overlay-sub">SPECTATING</div>
+                        <button id="btn-return" onclick="location.reload()" style="display:none; margin-top: 20px; font-size: 14px; width: 80%;">Main Menu</button>
+                    </div>
                 </div>
 
                 <div class="side-panel">
@@ -344,13 +229,12 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
     <script>
         // ==========================================
-        // UI & STATE MANAGEMENT
+        // UI & DPI HELPERS
         // ==========================================
         let myName = "";
         let myPeerId = "";
@@ -358,8 +242,7 @@
         
         const showError = (msg) => {
             const err = document.getElementById('error-msg');
-            err.innerText = msg;
-            err.style.display = 'block';
+            err.innerText = msg; err.style.display = 'block';
             setTimeout(() => err.style.display = 'none', 3000);
         }
 
@@ -368,25 +251,22 @@
             document.getElementById(id).classList.add('active');
         }
 
-        // Setup Crisp High-DPI Canvases
         function setupHiDPICanvas(canvas, w, h, scale) {
             const dpr = window.devicePixelRatio || 1;
-            canvas.width = w * dpr;
-            canvas.height = h * dpr;
-            canvas.style.width = w + 'px';
-            canvas.style.height = h + 'px';
+            canvas.width = w * dpr; canvas.height = h * dpr;
+            canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
             const ctx = canvas.getContext('2d');
             ctx.scale(dpr * scale, dpr * scale);
             return ctx;
         }
 
         // ==========================================
-        // NETWORKING (WebRTC / PeerJS)
+        // NETWORKING LOGIC
         // ==========================================
         let peer;
         let hostConnection; 
         let peerConnections = {}; 
-        let playersData = {}; // { id: { name, score, arena, status } }
+        let playersData = {}; // { id: { name, score, arena, activePiece, status } }
 
         function initPeer(id, onOpen) {
             peer = new Peer(id);
@@ -413,42 +293,43 @@
                 document.getElementById('btn-start').style.display = 'block';
                 document.getElementById('lobby-status').style.display = 'none';
                 
-                updateLobbyUI();
-                switchScreen('screen-lobby');
+                updateLobbyUI(); switchScreen('screen-lobby');
 
                 peer.on('connection', conn => {
                     conn.on('open', () => {
                         const peerName = conn.metadata.name;
-                        const isTaken = Object.values(playersData).some(p => p.name.toLowerCase() === peerName.toLowerCase());
-                        if(isTaken) {
+                        if(Object.values(playersData).some(p => p.name.toLowerCase() === peerName.toLowerCase())) {
                             conn.send({ type: 'rejected', reason: 'Name taken.' });
-                            setTimeout(() => conn.close(), 500);
-                            return;
+                            setTimeout(() => conn.close(), 500); return;
                         }
 
                         peerConnections[conn.peer] = conn;
                         playersData[conn.peer] = { name: peerName, score: 0, status: 'lobby' };
-                        
                         conn.send({ type: 'accepted', myId: conn.peer });
                         broadcastLobby();
 
-                        conn.on('data', data => {
-                            if(data.type === 'state_update') {
-                                playersData[conn.peer].arena = data.arena;
-                                playersData[conn.peer].score = data.score;
-                                playersData[conn.peer].status = data.status;
-                                broadcastGameState();
-                            }
-                        });
-
+                        conn.on('data', data => handleHostData(conn.peer, data));
                         conn.on('close', () => {
-                            delete peerConnections[conn.peer];
-                            delete playersData[conn.peer];
-                            broadcastLobby();
+                            delete peerConnections[conn.peer]; delete playersData[conn.peer];
+                            broadcastLobby(); checkWinCondition();
                         });
                     });
                 });
             });
+        }
+
+        function handleHostData(peerId, data) {
+            if(data.type === 'state_update') {
+                playersData[peerId].arena = data.arena;
+                playersData[peerId].activePiece = data.activePiece;
+                playersData[peerId].score = data.score;
+                playersData[peerId].status = data.status;
+                broadcastGameState();
+                checkWinCondition();
+            }
+            else if(data.type === 'attack') {
+                routeAttack(peerId, data.lines);
+            }
         }
 
         function broadcastLobby() {
@@ -460,12 +341,25 @@
         function broadcastGameState() {
             const state = {};
             for(let id in playersData) {
-                if(id !== myPeerId) {
-                    state[id] = { arena: playersData[id].arena, score: playersData[id].score, status: playersData[id].status };
-                }
+                if(id !== myPeerId) state[id] = playersData[id];
             }
             Object.values(peerConnections).forEach(c => c.send({ type: 'game_sync', state }));
             renderOpponents(state);
+        }
+
+        function routeAttack(senderId, lines) {
+            // Find all alive players except sender
+            let aliveIds = Object.keys(playersData).filter(id => id !== senderId && playersData[id].status === 'playing');
+            if(aliveIds.length === 0) return;
+            
+            // Pick a random target
+            let targetId = aliveIds[Math.floor(Math.random() * aliveIds.length)];
+            
+            if(targetId === myPeerId) {
+                receiveGarbage(lines);
+            } else {
+                peerConnections[targetId].send({ type: 'receive_garbage', lines });
+            }
         }
 
         function joinRoom() {
@@ -476,121 +370,93 @@
 
             initPeer(null, () => {
                 hostConnection = peer.connect(code, { metadata: { name: myName } });
-                
                 hostConnection.on('open', () => {
                     hostConnection.on('data', data => {
-                        if(data.type === 'rejected') {
-                            showError(data.reason);
-                            peer.destroy();
-                        }
-                        else if(data.type === 'accepted') {
-                            myPeerId = data.myId;
-                            switchScreen('screen-lobby');
-                        }
+                        if(data.type === 'rejected') { showError(data.reason); peer.destroy(); }
+                        else if(data.type === 'accepted') { myPeerId = data.myId; switchScreen('screen-lobby'); }
                         else if(data.type === 'lobby_update') {
-                            playersData = {};
-                            data.players.forEach(p => playersData[p.id] = p);
-                            updateLobbyUI();
+                            playersData = {}; data.players.forEach(p => playersData[p.id] = p); updateLobbyUI();
                         }
-                        else if(data.type === 'start_game') {
-                            setupOpponentCanvases();
-                            switchScreen('screen-game');
-                            startGameEngine();
-                        }
-                        else if(data.type === 'game_sync') {
-                            renderOpponents(data.state);
-                        }
+                        else if(data.type === 'start_game') { setupOpponentCanvases(); switchScreen('screen-game'); startGameEngine(); }
+                        else if(data.type === 'game_sync') { renderOpponents(data.state); }
+                        else if(data.type === 'receive_garbage') { receiveGarbage(data.lines); }
+                        else if(data.type === 'match_end') { showMatchEnd(data.winner); }
                     });
-
-                    hostConnection.on('close', () => {
-                        alert("Host disconnected.");
-                        location.reload();
-                    });
+                    hostConnection.on('close', () => { alert("Host disconnected."); location.reload(); });
                 });
             });
         }
 
         function updateLobbyUI() {
-            const list = document.getElementById('player-list');
-            list.innerHTML = '';
+            const list = document.getElementById('player-list'); list.innerHTML = '';
             Object.values(playersData).forEach(p => {
-                const el = document.createElement('div');
-                el.className = 'player-item';
-                el.innerText = p.name + (p.name === myName ? ' (You)' : '');
-                list.appendChild(el);
+                const el = document.createElement('div'); el.className = 'player-item';
+                el.innerText = p.name + (p.name === myName ? ' (You)' : ''); list.appendChild(el);
             });
         }
 
         function startGameAsHost() {
             Object.values(peerConnections).forEach(c => c.send({ type: 'start_game' }));
-            setupOpponentCanvases();
-            switchScreen('screen-game');
-            startGameEngine();
+            setupOpponentCanvases(); switchScreen('screen-game'); startGameEngine();
         }
 
         function syncLocalState(customStatus = 'playing') {
-            const combinedMatrix = createMatrix(COLS, ROWS);
-            for(let y=0; y<ROWS; y++) {
-                for(let x=0; x<COLS; x++) combinedMatrix[y][x] = arena[y][x];
-            }
-            if(player.matrix && customStatus !== 'game_over') {
-                player.matrix.forEach((row, y) => {
-                    row.forEach((value, x) => {
-                        if(value !== 0 && combinedMatrix[y + player.pos.y]) {
-                            combinedMatrix[y + player.pos.y][x + player.pos.x] = value;
-                        }
-                    });
-                });
-            }
+            const activePiece = player.matrix ? { matrix: player.matrix, pos: player.pos } : null;
 
             if(isHost) {
-                playersData[myPeerId].arena = combinedMatrix;
-                playersData[myPeerId].score = player.score;
-                playersData[myPeerId].status = customStatus;
+                playersData[myPeerId] = { ...playersData[myPeerId], arena, activePiece, score: player.score, status: customStatus };
                 broadcastGameState();
+                checkWinCondition();
             } else {
-                hostConnection.send({ type: 'state_update', arena: combinedMatrix, score: player.score, status: customStatus });
+                hostConnection.send({ type: 'state_update', arena, activePiece, score: player.score, status: customStatus });
             }
         }
 
+        function sendAttack(lines) {
+            if(isHost) routeAttack(myPeerId, lines);
+            else hostConnection.send({ type: 'attack', lines });
+        }
+
+        function checkWinCondition() {
+            if(!isHost || !gameStartedFlag) return;
+            const activePlayers = Object.values(playersData).filter(p => p.status === 'playing');
+            const totalPlayers = Object.keys(playersData).length;
+            
+            if(totalPlayers > 1 && activePlayers.length <= 1) {
+                let winner = activePlayers.length === 1 ? activePlayers[0].name : "NOBODY";
+                Object.values(peerConnections).forEach(c => c.send({ type: 'match_end', winner }));
+                showMatchEnd(winner);
+            }
+        }
 
         // ==========================================
-        // DYNAMIC RENDERING FOR OPPONENTS
+        // OPPONENT RENDERING
         // ==========================================
         const opponentCtxs = {};
 
         function setupOpponentCanvases() {
-            const container = document.getElementById('opponents-area');
-            container.innerHTML = '';
-            
+            const container = document.getElementById('opponents-area'); container.innerHTML = '';
             for(let id in playersData) {
                 if(id === myPeerId) continue;
                 
-                const card = document.createElement('div');
-                card.className = 'opponent-card';
+                const card = document.createElement('div'); card.className = 'opponent-card';
+                const nameLabel = document.createElement('div'); nameLabel.className = 'opponent-name'; nameLabel.innerText = playersData[id].name;
                 
-                const nameLabel = document.createElement('div');
-                nameLabel.className = 'opponent-name';
-                nameLabel.innerText = playersData[id].name;
+                const wrapper = document.createElement('div'); wrapper.className = 'opponent-canvas-wrapper';
+                const canvas = document.createElement('canvas'); canvas.className = 'opponent-canvas';
                 
-                const wrapper = document.createElement('div');
-                wrapper.className = 'opponent-canvas-wrapper';
+                const statusOverlay = document.createElement('div');
+                statusOverlay.className = 'opponent-status';
+                statusOverlay.id = `status-${id}`;
+                statusOverlay.innerText = "K.O.";
 
-                const canvas = document.createElement('canvas');
-                canvas.className = 'opponent-canvas';
                 wrapper.appendChild(canvas);
+                wrapper.appendChild(statusOverlay);
                 
-                const scoreLabel = document.createElement('div');
-                scoreLabel.className = 'opponent-score';
-                scoreLabel.id = `score-${id}`;
-                scoreLabel.innerText = '0';
+                const scoreLabel = document.createElement('div'); scoreLabel.className = 'opponent-score';
+                scoreLabel.id = `score-${id}`; scoreLabel.innerText = '0';
 
-                card.appendChild(nameLabel);
-                card.appendChild(wrapper);
-                card.appendChild(scoreLabel);
-                container.appendChild(card);
-
-                // Setup 100x200 canvas -> Scale by 10
+                card.appendChild(nameLabel); card.appendChild(wrapper); card.appendChild(scoreLabel); container.appendChild(card);
                 opponentCtxs[id] = setupHiDPICanvas(canvas, 100, 200, 10);
             }
         }
@@ -598,24 +464,21 @@
         function renderOpponents(states) {
             for(let id in states) {
                 if(id === myPeerId) continue;
-                const ctx = opponentCtxs[id];
-                if(!ctx) continue;
+                const ctx = opponentCtxs[id]; if(!ctx) continue;
                 
                 ctx.clearRect(0, 0, COLS, ROWS);
                 
-                if(states[id].arena) {
-                    drawMatrix(states[id].arena, {x:0, y:0}, ctx);
+                // Draw Opponent Locked Board
+                if(states[id].arena) drawMatrix(states[id].arena, {x:0, y:0}, ctx);
+                
+                // Draw Opponent Active Piece
+                if(states[id].activePiece && states[id].status === 'playing') {
+                    drawMatrix(states[id].activePiece.matrix, states[id].activePiece.pos, ctx);
                 }
                 
-                if(states[id].status === 'game_over') {
-                    ctx.fillStyle = 'rgba(239, 68, 68, 0.4)';
-                    ctx.fillRect(0, 0, COLS, ROWS);
-                    ctx.fillStyle = 'white';
-                    ctx.font = '2px JetBrains Mono';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText('KO', COLS/2, ROWS/2);
-                }
+                // Handle KO Visual
+                const statusEl = document.getElementById(`status-${id}`);
+                if(statusEl) statusEl.style.display = states[id].status === 'game_over' ? 'flex' : 'none';
                 
                 const scoreEl = document.getElementById(`score-${id}`);
                 if(scoreEl) scoreEl.innerText = states[id].score;
@@ -627,105 +490,86 @@
         // ==========================================
         const COLS = 10, ROWS = 20, BLOCK_SIZE = 24;
         
-        const canvasMain = document.getElementById('canvas-main');
-        const canvasHold = document.getElementById('canvas-hold');
-        const canvasNext = document.getElementById('canvas-next');
+        const ctxMain = setupHiDPICanvas(document.getElementById('canvas-main'), 240, 480, 24);
+        const ctxHold = setupHiDPICanvas(document.getElementById('canvas-hold'), 80, 80, 20);
+        const ctxNext = setupHiDPICanvas(document.getElementById('canvas-next'), 80, 80, 20);
 
-        const ctxMain = setupHiDPICanvas(canvasMain, 240, 480, 24);
-        const ctxHold = setupHiDPICanvas(canvasHold, 80, 80, 20);
-        const ctxNext = setupHiDPICanvas(canvasNext, 80, 80, 20);
-
-        const colors = [
-            null,
-            '#EF4444', // Z
-            '#F97316', // L
-            '#FACC15', // O
-            '#2563EB', // J
-            '#06B6D4', // I
-            '#22C55E', // S
-            '#A855F7'  // T
-        ];
+        const colors = [ null, '#EF4444', '#F97316', '#FACC15', '#2563EB', '#06B6D4', '#22C55E', '#A855F7', '#64748B' ]; // 8 is Garbage
 
         const pieces = {
-            'Z': [[1,1,0],[0,1,1],[0,0,0]],
-            'L': [[0,0,2],[2,2,2],[0,0,0]],
-            'O': [[3,3],[3,3]],
-            'J': [[4,0,0],[4,4,4],[0,0,0]],
-            'I': [[0,0,0,0],[5,5,5,5],[0,0,0,0],[0,0,0,0]],
-            'S': [[0,6,6],[6,6,0],[0,0,0]],
-            'T': [[0,7,0],[7,7,7],[0,0,0]]
+            'Z': [[1,1,0],[0,1,1],[0,0,0]], 'L': [[0,0,2],[2,2,2],[0,0,0]], 'O': [[3,3],[3,3]],
+            'J': [[4,0,0],[4,4,4],[0,0,0]], 'I': [[0,0,0,0],[5,5,5,5],[0,0,0,0],[0,0,0,0]],
+            'S': [[0,6,6],[6,6,0],[0,0,0]], 'T': [[0,7,0],[7,7,7],[0,0,0]]
         };
 
-        function createMatrix(w, h) {
-            const m = [];
-            while(h--) m.push(new Array(w).fill(0));
-            return m;
-        }
+        function createMatrix(w, h) { return Array.from({length: h}, () => new Array(w).fill(0)); }
 
         let arena = createMatrix(COLS, ROWS);
         let player = { pos: {x: 0, y: 0}, matrix: null, score: 0 };
-        let bag = [];
-        let nextPiece = null;
-        let holdPiece = null;
-        let canHold = true;
-        let gameRunning = false;
+        let bag = [], nextPiece = null, holdPiece = null, canHold = true;
+        let gameRunning = false, gameStartedFlag = false, localStatus = 'playing';
 
-        let dropInterval = 1000;
-        let lockDelayLimit = 500;
-        let lockTimer = 0;
-        let isLocking = false;
-        
+        let dropInterval = 1000, lockDelayLimit = 500, lockTimer = 0, isLocking = false;
         const keys = { left: false, right: false, down: false };
-        let dasTimer = 0;
-        const DAS = 150; 
-        const ARR = 40;  
+        let dasTimer = 0; const DAS = 150, ARR = 40;  
 
         function getBagPiece() {
-            if(bag.length === 0) {
-                bag = ['I','J','L','O','S','T','Z'];
-                bag.sort(() => Math.random() - 0.5);
-            }
+            if(bag.length === 0) { bag = ['I','J','L','O','S','T','Z']; bag.sort(() => Math.random() - 0.5); }
             return pieces[bag.pop()];
         }
 
-        function updateScoreUI() {
-            document.getElementById('my-score').innerText = player.score;
+        function triggerGameOver() {
+            gameRunning = false; localStatus = 'game_over';
+            syncLocalState('game_over');
+            
+            const overlay = document.getElementById('game-overlay');
+            document.getElementById('overlay-msg').innerText = "GAME OVER";
+            document.getElementById('overlay-msg').className = "overlay-text text-danger";
+            document.getElementById('overlay-sub').innerText = "SPECTATING OPPONENTS";
+            document.getElementById('btn-return').style.display = 'block';
+            overlay.style.display = 'flex';
+            
+            renderLocal(); // Final draw
+        }
+
+        function showMatchEnd(winnerName) {
+            gameRunning = false;
+            const overlay = document.getElementById('game-overlay');
+            const msg = document.getElementById('overlay-msg');
+            const sub = document.getElementById('overlay-sub');
+            
+            if(winnerName === myName) {
+                msg.innerText = "VICTORY!";
+                msg.className = "overlay-text text-success";
+                sub.innerText = "YOU ARE THE TETRIS PRO";
+            } else {
+                msg.innerText = "MATCH ENDED";
+                msg.className = "overlay-text text-danger";
+                sub.innerText = `WINNER: ${winnerName}`;
+            }
+            
+            document.getElementById('btn-return').style.display = 'block';
+            overlay.style.display = 'flex';
         }
 
         function resetPlayer() {
             if(!nextPiece) nextPiece = getBagPiece();
-            player.matrix = nextPiece;
-            nextPiece = getBagPiece();
-            player.pos.y = 0;
-            player.pos.x = Math.floor(COLS/2) - Math.floor(player.matrix[0].length/2);
-            canHold = true;
-            isLocking = false;
-            lockTimer = 0;
+            player.matrix = nextPiece; nextPiece = getBagPiece();
+            player.pos.y = 0; player.pos.x = Math.floor(COLS/2) - Math.floor(player.matrix[0].length/2);
+            canHold = true; isLocking = false; lockTimer = 0;
 
-            if (collide(arena, player)) {
-                gameRunning = false;
-                syncLocalState('game_over');
-                document.getElementById('game-over-overlay').style.display = 'flex';
-                return;
-            }
-            syncLocalState();
+            if (collide(arena, player)) triggerGameOver();
+            else syncLocalState();
         }
 
         function hold() {
-            if(!canHold) return;
+            if(!canHold || !gameRunning) return;
             const cur = player.matrix;
             if(holdPiece) {
-                player.matrix = holdPiece;
-                holdPiece = cur;
-                player.pos.y = 0;
-                player.pos.x = Math.floor(COLS/2) - Math.floor(player.matrix[0].length/2);
-            } else {
-                holdPiece = cur;
-                resetPlayer();
-            }
-            canHold = false;
-            isLocking = false;
-            syncLocalState();
+                player.matrix = holdPiece; holdPiece = cur;
+                player.pos.y = 0; player.pos.x = Math.floor(COLS/2) - Math.floor(player.matrix[0].length/2);
+            } else { holdPiece = cur; resetPlayer(); }
+            canHold = false; isLocking = false; syncLocalState();
         }
 
         function collide(board, obj) {
@@ -747,32 +591,55 @@
         }
 
         function sweep() {
-            let lines = 0;
+            let linesCleared = 0;
             outer: for(let y = ROWS - 1; y >= 0; --y) {
-                for(let x = 0; x < COLS; ++x) {
-                    if(arena[y][x] === 0) continue outer;
-                }
+                for(let x = 0; x < COLS; ++x) if(arena[y][x] === 0) continue outer;
                 const row = arena.splice(y, 1)[0].fill(0);
                 arena.unshift(row);
-                ++y;
-                lines++;
+                ++y; linesCleared++;
             }
-            if(lines > 0) {
-                player.score += (lines === 1 ? 100 : lines === 2 ? 300 : lines === 3 ? 500 : 800);
-                updateScoreUI();
+            
+            if(linesCleared > 0) {
+                player.score += (linesCleared === 1 ? 100 : linesCleared === 2 ? 300 : linesCleared === 3 ? 500 : 800);
+                document.getElementById('my-score').innerText = player.score;
+                
+                // SABOTAGE MECHANIC
+                if(linesCleared >= 2) {
+                    let sent = linesCleared === 2 ? 1 : linesCleared === 3 ? 2 : 4;
+                    sendAttack(sent);
+                }
             }
+        }
+
+        function receiveGarbage(lines) {
+            if(!gameRunning) return;
+            
+            // Visual Alert
+            const alertEl = document.getElementById('attack-alert');
+            alertEl.style.opacity = 1;
+            setTimeout(() => alertEl.style.opacity = 0, 1000);
+
+            // Add Garbage Rows
+            for(let i=0; i<lines; i++) {
+                let row = new Array(COLS).fill(8); // 8 is garbage color
+                row[Math.floor(Math.random() * COLS)] = 0; // One random hole
+                arena.shift(); 
+                arena.push(row);
+            }
+            
+            // Push player up if overlapping
+            while(collide(arena, player)) {
+                player.pos.y--;
+                if(player.pos.y < 0) { triggerGameOver(); return; }
+            }
+            syncLocalState();
         }
 
         function attemptMove(dir) {
             player.pos.x += dir;
-            if(collide(arena, player)) {
-                player.pos.x -= dir;
-                return false;
-            }
+            if(collide(arena, player)) { player.pos.x -= dir; return false; }
             if(isLocking) lockTimer = 0;
-            checkLockCondition();
-            syncLocalState();
-            return true;
+            checkLockCondition(); syncLocalState(); return true;
         }
 
         function checkLockCondition() {
@@ -783,23 +650,17 @@
         }
 
         function lockPiece() {
-            merge();
-            sweep();
-            resetPlayer();
+            merge(); sweep(); resetPlayer();
         }
 
         function attemptDrop() {
             player.pos.y++;
             if(collide(arena, player)) {
                 player.pos.y--;
-                if(!isLocking) {
-                    isLocking = true;
-                    lockTimer = 0;
-                }
+                if(!isLocking) { isLocking = true; lockTimer = 0; }
             } else {
-                isLocking = false;
-                lockTimer = 0;
-                if(keys.down) { player.score += 1; updateScoreUI(); }
+                isLocking = false; lockTimer = 0;
+                if(keys.down) { player.score += 1; document.getElementById('my-score').innerText = player.score; }
             }
             syncLocalState();
         }
@@ -809,9 +670,8 @@
             while(!collide(arena, player)) { player.pos.y++; dropped++; }
             player.pos.y--;
             player.score += Math.max(0, dropped - 1) * 2; 
-            updateScoreUI();
-            lockPiece();
-            syncLocalState();
+            document.getElementById('my-score').innerText = player.score;
+            lockPiece(); syncLocalState();
         }
 
         function rotate(dir) {
@@ -819,54 +679,42 @@
             const origMatrix = player.matrix.map(row => [...row]);
             
             for(let y=0; y<player.matrix.length; ++y) {
-                for(let x=0; x<y; ++x) {
-                    [player.matrix[x][y], player.matrix[y][x]] = [player.matrix[y][x], player.matrix[x][y]];
-                }
+                for(let x=0; x<y; ++x) [player.matrix[x][y], player.matrix[y][x]] = [player.matrix[y][x], player.matrix[x][y]];
             }
-            if(dir > 0) player.matrix.forEach(r => r.reverse());
-            else player.matrix.reverse();
+            if(dir > 0) player.matrix.forEach(r => r.reverse()); else player.matrix.reverse();
             
             let offset = 1;
             while(collide(arena, player)) {
                 player.pos.x += offset;
                 offset = -(offset + (offset > 0 ? 1 : -1));
                 if(offset > player.matrix[0].length + 1) {
-                    player.matrix = origMatrix;
-                    player.pos.x = pos;
-                    return;
+                    player.matrix = origMatrix; player.pos.x = pos; return;
                 }
             }
             if(isLocking) lockTimer = 0;
-            checkLockCondition();
-            syncLocalState();
+            checkLockCondition(); syncLocalState();
         }
 
         function getGhostY() {
             let ghostY = player.pos.y;
-            while(!collide(arena, { matrix: player.matrix, pos: {x: player.pos.x, y: ghostY + 1} })) {
-                ghostY++;
-            }
+            while(!collide(arena, { matrix: player.matrix, pos: {x: player.pos.x, y: ghostY + 1} })) ghostY++;
             return ghostY;
         }
 
-        // --- ENHANCED RENDER LOGIC ---
-        function drawBlock(x, y, colorStr, ctx, isGhost=false) {
+        function drawBlock(x, y, colorStr, ctx, isGhost=false, isGarbage=false) {
             if(isGhost) {
-                ctx.fillStyle = 'rgba(255,255,255,0.08)';
-                ctx.fillRect(x, y, 1, 1);
-                ctx.strokeStyle = colorStr;
-                ctx.lineWidth = 0.08;
-                ctx.strokeRect(x+0.04, y+0.04, 0.92, 0.92);
+                ctx.fillStyle = 'rgba(255,255,255,0.08)'; ctx.fillRect(x, y, 1, 1);
+                ctx.strokeStyle = colorStr; ctx.lineWidth = 0.08; ctx.strokeRect(x+0.04, y+0.04, 0.92, 0.92);
             } else {
-                ctx.fillStyle = colorStr;
-                ctx.fillRect(x, y, 1, 1);
-                // 3D Bevel effect
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-                ctx.fillRect(x, y, 1, 0.12); // Top
-                ctx.fillRect(x, y, 0.12, 1); // Left
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-                ctx.fillRect(x, y + 0.88, 1, 0.12); // Bottom
-                ctx.fillRect(x + 0.88, y, 0.12, 1); // Right
+                ctx.fillStyle = colorStr; ctx.fillRect(x, y, 1, 1);
+                if(isGarbage) {
+                    // Flat look for garbage
+                    ctx.strokeStyle = '#000'; ctx.lineWidth = 0.05; ctx.strokeRect(x,y,1,1);
+                } else {
+                    // 3D Bevel for active pieces
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)'; ctx.fillRect(x, y, 1, 0.12); ctx.fillRect(x, y, 0.12, 1);
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)'; ctx.fillRect(x, y + 0.88, 1, 0.12); ctx.fillRect(x + 0.88, y, 0.12, 1);
+                }
             }
         }
 
@@ -874,9 +722,7 @@
             if(!matrix) return;
             matrix.forEach((row, y) => {
                 row.forEach((val, x) => {
-                    if(val !== 0) {
-                        drawBlock(x + offset.x, y + offset.y, colors[val], ctx, isGhost);
-                    }
+                    if(val !== 0) drawBlock(x + offset.x, y + offset.y, colors[val], ctx, isGhost, val === 8);
                 });
             });
         }
@@ -884,64 +730,57 @@
         function drawBoxPiece(matrix, ctx) {
             ctx.clearRect(0, 0, 4, 4);
             if(!matrix) return;
-            const width = matrix[0].length;
-            const height = matrix.length;
-            const offset = { x: (4 - width)/2, y: (4 - height)/2 };
-            drawMatrix(matrix, offset, ctx);
+            const w = matrix[0].length, h = matrix.length;
+            drawMatrix(matrix, { x: (4 - w)/2, y: (4 - h)/2 }, ctx);
         }
 
         function renderLocal() {
             ctxMain.clearRect(0, 0, COLS, ROWS);
-            
-            // Subtle Grid
-            ctxMain.strokeStyle = 'rgba(255,255,255,0.05)';
-            ctxMain.lineWidth = 0.04;
+            ctxMain.strokeStyle = 'rgba(255,255,255,0.05)'; ctxMain.lineWidth = 0.04;
             for(let i=1; i<COLS; i++){ ctxMain.beginPath(); ctxMain.moveTo(i,0); ctxMain.lineTo(i,ROWS); ctxMain.stroke(); }
             for(let i=1; i<ROWS; i++){ ctxMain.beginPath(); ctxMain.moveTo(0,i); ctxMain.lineTo(COLS,i); ctxMain.stroke(); }
 
             drawMatrix(arena, {x:0, y:0}, ctxMain);
-            if (player.matrix) {
-                drawMatrix(player.matrix, {x: player.pos.x, y: getGhostY()}, ctxMain, true); // Ghost
+            
+            // Only draw active piece if playing
+            if (player.matrix && localStatus === 'playing') {
+                drawMatrix(player.matrix, {x: player.pos.x, y: getGhostY()}, ctxMain, true);
                 drawMatrix(player.matrix, player.pos, ctxMain, false);
             }
 
             drawBoxPiece(holdPiece, ctxHold);
             drawBoxPiece(nextPiece, ctxNext);
+            
+            // If Game over, tint screen red
+            if(localStatus === 'game_over') {
+                ctxMain.fillStyle = 'rgba(239, 68, 68, 0.15)';
+                ctxMain.fillRect(0,0,COLS,ROWS);
+            }
         }
 
-        // --- GAME LOOP ---
-        let lastTime = 0;
-        let dropCounter = 0;
+        let lastTime = 0, dropCounter = 0;
 
         function update(time = 0) {
-            if(!gameRunning) return;
-            const dt = time - lastTime;
-            lastTime = time;
+            // Note: Update keeps running to maintain game loop timing, but input/gravity ignores if not playing
+            const dt = time - lastTime; lastTime = time;
 
-            // 1. DAS / ARR
-            if(keys.left || keys.right) {
-                dasTimer += dt;
-                if(dasTimer >= DAS) {
-                    let arrTicks = Math.floor((dasTimer - DAS) / ARR);
-                    if(arrTicks > 0) {
-                        for(let i=0; i<arrTicks; i++) attemptMove(keys.left ? -1 : 1);
-                        dasTimer -= arrTicks * ARR;
+            if(gameRunning) {
+                if(keys.left || keys.right) {
+                    dasTimer += dt;
+                    if(dasTimer >= DAS) {
+                        let arrTicks = Math.floor((dasTimer - DAS) / ARR);
+                        if(arrTicks > 0) {
+                            for(let i=0; i<arrTicks; i++) attemptMove(keys.left ? -1 : 1);
+                            dasTimer -= arrTicks * ARR;
+                        }
                     }
-                }
-            } else { dasTimer = 0; }
+                } else { dasTimer = 0; }
 
-            // 2. Drop Processing
-            dropCounter += dt;
-            const currentGravity = keys.down ? dropInterval / 20 : dropInterval; 
-            while(dropCounter > currentGravity) {
-                attemptDrop();
-                dropCounter -= currentGravity;
-            }
+                dropCounter += dt;
+                const currentGravity = keys.down ? dropInterval / 20 : dropInterval; 
+                while(dropCounter > currentGravity) { attemptDrop(); dropCounter -= currentGravity; }
 
-            // 3. Lock Delay
-            if(isLocking) {
-                lockTimer += dt;
-                if(lockTimer >= lockDelayLimit) lockPiece();
+                if(isLocking) { lockTimer += dt; if(lockTimer >= lockDelayLimit) lockPiece(); }
             }
 
             renderLocal();
@@ -949,32 +788,21 @@
         }
 
         function startGameEngine() {
-            gameRunning = true;
-            document.getElementById('game-over-overlay').style.display = 'none';
+            gameStartedFlag = true;
+            gameRunning = true; localStatus = 'playing';
+            document.getElementById('game-overlay').style.display = 'none';
             arena.forEach(row => row.fill(0));
-            player.score = 0;
-            updateScoreUI();
-            resetPlayer();
-            lastTime = performance.now();
-            update();
+            player.score = 0; document.getElementById('my-score').innerText = '0';
+            resetPlayer(); lastTime = performance.now(); update();
         }
 
         // --- INPUTS ---
         document.addEventListener('keydown', e => {
             if(!gameRunning) return;
-            
-            if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","Space"].includes(e.code)) {
-                e.preventDefault();
-            }
+            if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","Space"].includes(e.code)) e.preventDefault();
 
-            if(e.code === 'ArrowLeft') { 
-                if(!keys.left) { attemptMove(-1); dasTimer = 0; }
-                keys.left = true; 
-            }
-            if(e.code === 'ArrowRight') { 
-                if(!keys.right) { attemptMove(1); dasTimer = 0; }
-                keys.right = true; 
-            }
+            if(e.code === 'ArrowLeft') { if(!keys.left) { attemptMove(-1); dasTimer = 0; } keys.left = true; }
+            if(e.code === 'ArrowRight') { if(!keys.right) { attemptMove(1); dasTimer = 0; } keys.right = true; }
             if(e.code === 'ArrowDown') keys.down = true;
 
             if(e.code === 'ArrowUp' || e.code === 'KeyX') rotate(1);
