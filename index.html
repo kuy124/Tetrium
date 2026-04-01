@@ -348,11 +348,9 @@
         }
 
         function routeAttack(senderId, lines) {
-            // Find all alive players except sender
             let aliveIds = Object.keys(playersData).filter(id => id !== senderId && playersData[id].status === 'playing');
             if(aliveIds.length === 0) return;
             
-            // Pick a random target
             let targetId = aliveIds[Math.floor(Math.random() * aliveIds.length)];
             
             if(targetId === myPeerId) {
@@ -396,6 +394,10 @@
         }
 
         function startGameAsHost() {
+            // Fix: Force all players into 'playing' status instantly to avoid race condition ending the game 
+            for(let id in playersData) {
+                playersData[id].status = 'playing';
+            }
             Object.values(peerConnections).forEach(c => c.send({ type: 'start_game' }));
             setupOpponentCanvases(); switchScreen('screen-game'); startGameEngine();
         }
