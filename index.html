@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplayer Tetris</title>
+    <!-- Import PeerJS for Peer-to-Peer Multiplayer -->
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <style>
+        body {
+            background-color: #111;
+            color: #fff;
+            font-family: 'Courier New', Courier, monospace;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 { margin-top: 0; }
+        #menu {
+            margin-bottom: 20px;
+            background: #222;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #444;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            font-family: inherit;
+            border-radius: 4px;
+            border: none;
+        }
+        button { background: #4CAF50; color: white; cursor: pointer; font-weight: bold; }
+        button:hover { background: #45a049; }
+        #game-container {
+            display: none;
+            gap: 50px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .player-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        canvas {
+            background-color: #000;
+            border: 2px solid #555;
+            box-shadow: 0 0 15px rgba(255,255,255,0.1);
+        }
+        .score { font-size: 24px; margin: 10px 0; }
+        #status { color: #aaa; margin-bottom: 15px; }
+        .controls { margin-top: 15px; font-size: 14px; color: #888; }
+    </style>
+</head>
+<body>
+
+    <h1>Multiplayer Tetris</h1>
+    <div id="status">Waiting to start...</div>
+
+    <div id="menu">
+        <div>
+            <h3>Host a Game</h3>
+            <button onclick="hostGame()">Create Room</button>
+            <p>Your Room ID: <strong id="room-id-display">...</strong></p>
+        </div>
+        <hr style="border-color: #444; my: 15px;">
+        <div>
+            <h3>Join a Game</h3>
+            <input type="text" id="join-id" placeholder="Enter Room ID">
+            <button onclick="joinGame()">Join</button>
+        </div>
+    </div>
+
+    <div id="game-container">
+        <div class="player-area">
+            <h2>You</h2>
+            <div class="score">Score: <span id="local-score">0</span></div>
+            <canvas id="localCanvas" width="240" height="400"></canvas>
+            <div class="controls">Controls: Arrows to Move/Rotate. Down to Drop.</div>
+        </div>
+        <div class="player-area">
+            <h2>Opponent</h2>
+            <div class="score">Score: <span id="remote-score">0</span></div>
+            <canvas id="remoteCanvas" width="240" height="400"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // --- PEER TO PEER MULTIPLAYER LOGIC ---
+        let peer;
+        let connection;
+        let isMultiplayer = false;
+
+        function initPeer() {
+            peer = new Peer();
+            peer.on('open', id => {
+                document.getElementById('room-id-display').innerText = id;
+            });
+            // Handle incoming connection (Host side)
+            peer.on('connection', conn => {
+                connection = conn;
+                setupConnection();
+                startGame();
+            });
+        }
+
+        function hostGame() {
+            if(!peer) initPeer();
+            document.getElementById('status').innerText = "Waiting for opponent to join...";
+        }
+
+        function joinGame() {
+            const roomId = document.getElementById('join-id').value;
+            if (!roomId) return alert("Please enter a Room ID");
+            if (!peer) peer = new Peer();
+            
+            peer.on('open', () => {
+                connection = peer.connect(roomId);
+                connection.on('open', () => {
+                    setupConnection();
+                    startGame();
+                });
+            });
+        }
+
+        function setupConnection() {
+            isMultiplayer = true;
+            document.getElementById('status').innerText = "Connected! Game On!";
+            document.getElementById('status').style.color = "#4CAF50";
+            
+            // Receive data from opponent
+            connection.on('data', data => {
+                if (data.type === 'gameState') {
+                    drawRemoteBoard(data.matrix);
+                    document.getElementById('remote-score').innerText = data.score;
+                }
+            });
+        }
+
+        function sendGameState() {
+            if (isMultiplayer && connection && connection.open) {
+                // Combine arena and current piece to send to opponent
+                const combinedMatrix = createMatrix(12, 20);
+                for (let y = 0; y < arena.length; ++y) {
+                    for (let x = 0; x < arena[y].length; ++x) {
+                        combinedMatrix[y][x] = arena[y][x];
+                    }
+                }
+                player.matrix.forEach((row, y) => {
+                    row.forEach((value, x) => {
+                        if (value !== 0) {
+                            if (combinedMatrix[y + player.pos.y] && combinedMatrix[y + player.pos.y][x + player.pos.x] !== undefined) {
+                                combinedMatrix[y + player.pos.y][x + player.pos.x] = value;
+                            }
+                        }
+                    });
+                });
+
+                connection.send({
+                    type: 'gameState',
+                    matrix: combinedMatrix,
+                    score: player.score
+                });
+            }
+        }
+
+        // --- TETRIS GAME LOGIC ---
+        const canvas = document.getElementById('localCanvas');
+        const context = canvas.getContext('2d');
+        const remoteCanvas = document.getElementById('remoteCanvas');
+        const remoteContext = remoteCanvas.getContext('2d');
+
+        context.scale(20, 20);
+        remoteContext.scale(20, 20);
+
+        const colors = [
+            null,
+            '#FF0D72', '#0DC2FF', '#0DFF72', '#F538FF', '#FF8E0D', '#FFE138', '#3877FF'
+        ];
+
+        function createMatrix(w, h) {
+            const matrix = [];
+            while (h--) { matrix.push(new Array(w).fill(0)); }
+            return matrix;
+        }
+
+        function createPiece(type) {
+            if (type === 'I') return [[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]];
+            if (type === 'L') return [[0,2,0],[0,2,0],[0,2,2]];
+            if (type === 'J') return [[0,3,0],[0,3,0],[3,3,0]];
+            if (type === 'O') return [[4,4],[4,4]];
+            if (type === 'Z') return [[5,5,0],[0,5,5],[0,0,0]];
+            if (type === 'S') return [[0,6,6],[6,6,0],[0,0,0]];
+            if (type === 'T') return [[0,0,0],[7,7,7],[0,7,0]];
+        }
+
+        function drawMatrix(matrix, offset, ctx) {
+            matrix.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value !== 0) {
+                        ctx.fillStyle = colors[value];
+                        ctx.fillRect(x + offset.x, y + offset.y, 1, 1);
+                        ctx.strokeStyle = '#000';
+                        ctx.lineWidth = 0.05;
+                        ctx.strokeRect(x + offset.x, y + offset.y, 1, 1);
+                    }
+                });
+            });
+        }
+
+        const arena = createMatrix(12, 20);
+        const player = { pos: {x: 0, y: 0}, matrix: null, score: 0 };
+
+        function draw() {
+            context.fillStyle = '#000';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            drawMatrix(arena, {x: 0, y: 0}, context);
+            drawMatrix(player.matrix, player.pos, context);
+        }
+
+        function drawRemoteBoard(matrix) {
+            remoteContext.fillStyle = '#000';
+            remoteContext.fillRect(0, 0, remoteCanvas.width, remoteCanvas.height);
+            drawMatrix(matrix, {x: 0, y: 0}, remoteContext);
+        }
+
+        function merge(arena, player) {
+            player.matrix.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value !== 0) {
+                        arena[y + player.pos.y][x + player.pos.x] = value;
+                    }
+                });
+            });
+        }
+
+        function collide(arena, player) {
+            const m = player.matrix;
+            const o = player.pos;
+            for (let y = 0; y < m.length; ++y) {
+                for (let x = 0; x < m[y].length; ++x) {
+                    if (m[y][x] !== 0 && (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function playerDrop() {
+            player.pos.y++;
+            if (collide(arena, player)) {
+                player.pos.y--;
+                merge(arena, player);
+                playerReset();
+                arenaSweep();
+            }
+            dropCounter = 0;
+            sendGameState();
+        }
+
+        function playerMove(offset) {
+            player.pos.x += offset;
+            if (collide(arena, player)) { player.pos.x -= offset; }
+            sendGameState();
+        }
+
+        function playerRotate(dir) {
+            const pos = player.pos.x;
+            let offset = 1;
+            rotate(player.matrix, dir);
+            while (collide(arena, player)) {
+                player.pos.x += offset;
+                offset = -(offset + (offset > 0 ? 1 : -1));
+                if (offset > player.matrix[0].length) {
+                    rotate(player.matrix, -dir);
+                    player.pos.x = pos;
+                    return;
+                }
+            }
+            sendGameState();
+        }
+
+        function rotate(matrix, dir) {
+            for (let y = 0; y < matrix.length; ++y) {
+                for (let x = 0; x < y; ++x) {
+                    [matrix[x][y], matrix[y][x]] = [matrix[y][x], matrix[x][y]];
+                }
+            }
+            if (dir > 0) { matrix.forEach(row => row.reverse()); } 
+            else { matrix.reverse(); }
+        }
+
+        function playerReset() {
+            const pieces = 'TJLOSZI';
+            player.matrix = createPiece(pieces[pieces.length * Math.random() | 0]);
+            player.pos.y = 0;
+            player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
+            
+            if (collide(arena, player)) {
+                arena.forEach(row => row.fill(0));
+                player.score = 0;
+                updateScore();
+            }
+            sendGameState();
+        }
+
+        function arenaSweep() {
+            let rowCount = 1;
+            outer: for (let y = arena.length - 1; y >= 0; --y) {
+                for (let x = 0; x < arena[y].length; ++x) {
+                    if (arena[y][x] === 0) continue outer;
+                }
+                const row = arena.splice(y, 1)[0].fill(0);
+                arena.unshift(row);
+                ++y;
+                player.score += rowCount * 10;
+                rowCount *= 2;
+            }
+            updateScore();
+        }
+
+        function updateScore() {
+            document.getElementById('local-score').innerText = player.score;
+        }
+
+        let dropCounter = 0;
+        let dropInterval = 1000;
+        let lastTime = 0;
+        let gameRunning = false;
+
+        function update(time = 0) {
+            if(!gameRunning) return;
+            const deltaTime = time - lastTime;
+            lastTime = time;
+
+            dropCounter += deltaTime;
+            if (dropCounter > dropInterval) { playerDrop(); }
+
+            draw();
+            requestAnimationFrame(update);
+        }
+
+        function startGame() {
+            document.getElementById('menu').style.display = 'none';
+            document.getElementById('game-container').style.display = 'flex';
+            playerReset();
+            gameRunning = true;
+            update();
+        }
+
+        // Controls
+        document.addEventListener('keydown', event => {
+            if(!gameRunning) return;
+            if (event.keyCode === 37) { playerMove(-1); } // Left
+            else if (event.keyCode === 39) { playerMove(1); } // Right
+            else if (event.keyCode === 40) { playerDrop(); } // Down
+            else if (event.keyCode === 38) { playerRotate(1); } // Up (Rotate)
+            
+            // Prevent scrolling on arrow keys
+            if([37, 38, 39, 40].indexOf(event.keyCode) > -1) {
+                event.preventDefault();
+            }
+        });
+
+        // Init host immediately so they get an ID
+        initPeer();
+    </script>
+</body>
+</html>
