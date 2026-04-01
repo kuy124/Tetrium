@@ -2,368 +2,548 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tetris Duel | Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris Pro Multiplayer</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@500;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --bg: #0b0b0f;
-            --panel-bg: rgba(20, 20, 30, 0.8);
-            --border: #2a2a3f;
-            --accent: #00ffcc;
-            --text: #e0e0e0;
+            --bg-color: #0f1115;
+            --surface: #1a1d24;
+            --surface-hover: #232730;
+            --border: #2d313a;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --danger: #ef4444;
         }
 
-        * { box-sizing: border-box; touch-action: none; }
+        * { box-sizing: border-box; }
         
         body {
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: 'Rajdhani', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
             margin: 0;
             height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: center;
             overflow: hidden;
-            background-image: 
-                radial-gradient(circle at 50% 50%, rgba(0, 255, 204, 0.05) 0%, transparent 60%),
-                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-            background-size: 100% 100%, 30px 30px, 30px 30px;
         }
 
-        h1 {
-            font-family: 'Jura', sans-serif;
-            font-size: 2.5rem;
-            margin: 10px 0 5px 0;
-            text-transform: uppercase;
-            letter-spacing: 5px;
-            color: #fff;
-            text-shadow: 0 0 10px var(--accent);
-        }
+        h1, h2, h3 { margin: 0; }
 
-        /* --- MENU UI --- */
-        #menu {
-            background: var(--panel-bg);
-            padding: 30px;
+        /* --- SCREENS --- */
+        .screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+        .screen.active { display: flex; }
+
+        /* --- MENU & LOBBY UI --- */
+        .panel {
+            background: var(--surface);
+            padding: 32px;
             border-radius: 12px;
             border: 1px solid var(--border);
-            backdrop-filter: blur(10px);
+            width: 100%;
+            max-width: 400px;
             text-align: center;
-            z-index: 10;
-            width: 90%;
-            max-width: 350px;
-            margin-top: 5vh;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        .menu-btn {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            font-family: 'Jura', sans-serif;
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #000;
-            background: var(--accent);
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: 0.2s;
-            text-transform: uppercase;
-        }
-        .menu-btn:hover { box-shadow: 0 0 15px var(--accent); transform: scale(1.02); }
+        .title { font-size: 24px; font-weight: 700; margin-bottom: 24px; letter-spacing: -0.5px; }
 
         input {
             width: 100%;
-            padding: 12px;
-            background: rgba(0,0,0,0.5);
+            padding: 12px 16px;
+            background: var(--bg-color);
             border: 1px solid var(--border);
-            color: var(--accent);
-            font-size: 1.5rem;
-            text-align: center;
-            border-radius: 6px;
-            font-family: monospace;
-            letter-spacing: 3px;
+            color: var(--text-main);
+            font-size: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-family: 'Inter', sans-serif;
+            transition: border 0.2s;
         }
-        input:focus { outline: none; border-color: var(--accent); }
+        input:focus { outline: none; border-color: var(--primary); }
 
-        .id-box { font-size: 2rem; color: var(--accent); font-weight: bold; letter-spacing: 5px; margin: 15px 0; }
+        button {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            background: var(--primary);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-bottom: 12px;
+        }
+        button:hover { background: var(--primary-hover); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 16px 0;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        .divider::before, .divider::after {
+            content: ''; flex: 1; border-bottom: 1px solid var(--border); margin: 0 10px;
+        }
+
+        #error-msg { color: var(--danger); font-size: 14px; margin-bottom: 16px; display: none; }
         
-        #status { color: #aaa; margin-bottom: 10px; font-size: 1.1rem; }
+        .code-display {
+            font-size: 32px; font-weight: 700; letter-spacing: 4px; color: var(--primary); margin: 16px 0;
+        }
+
+        .player-list {
+            text-align: left; background: var(--bg-color); border: 1px solid var(--border);
+            border-radius: 8px; padding: 12px; max-height: 200px; overflow-y: auto; margin-bottom: 16px;
+        }
+        .player-item { padding: 8px; border-bottom: 1px solid var(--border); font-size: 14px; }
+        .player-item:last-child { border-bottom: none; }
 
         /* --- GAME UI --- */
-        #game-wrapper {
-            display: none;
+        #game-layout {
+            display: flex;
             flex-direction: row;
-            gap: 20px;
-            height: 100%;
-            max-height: 800px;
-            padding: 10px;
             width: 100%;
-            justify-content: center;
-            align-items: flex-start;
+            height: 100%;
+            padding: 20px;
+            gap: 24px;
         }
 
-        .player-area {
+        /* Opponents Section */
+        #opponents-area {
+            flex: 1;
             display: flex;
-            gap: 10px;
-            background: var(--panel-bg);
-            padding: 15px;
-            border-radius: 10px;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            gap: 16px;
+            overflow-y: auto;
+            border-right: 1px solid var(--border);
+            padding-right: 20px;
+        }
+
+        .opponent-card {
+            background: var(--surface);
             border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: fit-content;
+        }
+        .opponent-name { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        .opponent-canvas { background: #000; border: 1px solid var(--border); }
+
+        /* Main Player Section */
+        #my-area {
+            flex: 2;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 20px;
         }
 
         .side-panel {
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            align-items: center;
+            gap: 16px;
         }
 
-        .box-title { font-size: 0.9rem; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;}
-        .canvas-box {
-            background: #000;
-            border: 2px solid #333;
-            border-radius: 5px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 5px;
-        }
-
-        canvas.main-board {
-            border: none;
-            box-shadow: 0 0 20px rgba(0,0,0,0.8);
-        }
-
-        .score-display { font-size: 1.5rem; font-weight: bold; color: var(--accent); }
-
-        /* --- MOBILE CONTROLS --- */
-        #mobile-controls {
-            display: none;
-            width: 100%;
-            max-width: 500px;
-            padding: 10px;
-            gap: 10px;
-            margin-top: auto;
-            margin-bottom: 20px;
-        }
-        
-        .d-pad, .action-pad { display: grid; gap: 8px; flex: 1; }
-        .d-pad { grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 60px); }
-        .action-pad { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 60px); }
-        
-        .m-btn {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: white;
+        .info-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
             border-radius: 8px;
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            user-select: none;
+            padding: 16px;
+            text-align: center;
         }
-        .m-btn:active { background: rgba(0, 255, 204, 0.4); }
-
-        .btn-up { grid-column: 2; grid-row: 1; }
-        .btn-left { grid-column: 1; grid-row: 2; }
-        .btn-down { grid-column: 2; grid-row: 2; }
-        .btn-right { grid-column: 3; grid-row: 2; }
-
-        @media (max-width: 800px) {
-            h1 { font-size: 1.8rem; }
-            #game-wrapper { flex-direction: column; align-items: center; overflow-y: auto; justify-content: flex-start; gap: 10px;}
-            .player-area { transform: scale(0.85); transform-origin: top center; margin-bottom: -30px;}
-            #remote-area { display: none; } /* Hide opponent board on small phones to save space */
-            #mobile-controls { display: flex; }
+        .info-title { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 8px; }
+        .info-value { font-size: 24px; font-weight: 700; color: var(--text-main); }
+        
+        .main-canvas-container {
+            background: #000;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 4px;
         }
+
+        canvas { display: block; }
     </style>
 </head>
 <body>
 
-    <h1>Tetris Duel Pro</h1>
-    <div id="status">Ready to connect</div>
-
-    <div id="menu">
-        <div id="menu-main">
-            <button class="menu-btn" onclick="hostGame()">Host Game</button>
-            <div style="margin: 20px 0; color: #666;">- OR -</div>
-            <input type="text" id="join-id" placeholder="5-DIGIT CODE" maxlength="5">
-            <button class="menu-btn" style="background: #ff0055; color: white;" onclick="joinGame()">Join Game</button>
-        </div>
-        <div id="menu-host" style="display:none;">
-            <p style="color: #aaa;">Share this code with your opponent:</p>
-            <div class="id-box" id="room-id-display">-----</div>
-            <button class="menu-btn" onclick="copyId()">Copy Code</button>
+    <!-- 1. SETUP SCREEN -->
+    <div id="screen-setup" class="screen active">
+        <div class="panel">
+            <div class="title">Tetris Pro</div>
+            <div id="error-msg"></div>
+            
+            <input type="text" id="username" placeholder="Enter your Name" maxlength="12">
+            
+            <button onclick="createRoom()">Host New Game</button>
+            <div class="divider">OR</div>
+            <input type="text" id="join-code" placeholder="5-Digit Room Code" maxlength="5">
+            <button onclick="joinRoom()" style="background: var(--surface-hover); border: 1px solid var(--border);">Join Game</button>
         </div>
     </div>
 
-    <div id="game-wrapper">
-        <!-- LOCAL PLAYER -->
-        <div class="player-area" id="local-area">
-            <div class="side-panel">
-                <div class="canvas-box">
-                    <div class="box-title">Hold</div>
-                    <canvas id="hold-canvas" width="80" height="80"></canvas>
-                </div>
-                <div class="box-title">Score</div>
-                <div class="score-display" id="local-score">0</div>
+    <!-- 2. LOBBY SCREEN -->
+    <div id="screen-lobby" class="screen">
+        <div class="panel">
+            <div class="title">Lobby</div>
+            <div id="lobby-code-area" style="display:none;">
+                <div style="font-size: 14px; color: var(--text-muted);">Room Code:</div>
+                <div class="code-display" id="lobby-code">-----</div>
             </div>
-            <div class="canvas-box" style="padding: 0;">
-                <canvas id="main-canvas" class="main-board" width="240" height="480"></canvas>
+            
+            <div style="font-size: 14px; color: var(--text-muted); text-align: left; margin-bottom: 8px;">Players:</div>
+            <div class="player-list" id="player-list">
+                <!-- Players injected here -->
             </div>
-            <div class="side-panel">
-                <div class="canvas-box">
-                    <div class="box-title">Next</div>
-                    <canvas id="next-canvas" width="80" height="80"></canvas>
-                </div>
-            </div>
-        </div>
 
-        <!-- REMOTE OPPONENT -->
-        <div class="player-area" id="remote-area" style="opacity: 0.8; transform: scale(0.9);">
-            <div class="side-panel">
-                <div class="canvas-box">
-                    <div class="box-title">Hold</div>
-                    <canvas id="r-hold-canvas" width="80" height="80"></canvas>
-                </div>
-                <div class="box-title">Opponent</div>
-                <div class="score-display" id="remote-score" style="color:#ff0055;">0</div>
-            </div>
-            <div class="canvas-box" style="padding: 0;">
-                <canvas id="r-main-canvas" class="main-board" width="240" height="480"></canvas>
-            </div>
-            <div class="side-panel">
-                <div class="canvas-box">
-                    <div class="box-title">Next</div>
-                    <canvas id="r-next-canvas" width="80" height="80"></canvas>
-                </div>
-            </div>
+            <div id="lobby-status" style="font-size: 14px; color: var(--text-muted); margin-bottom: 16px;">Waiting for host to start...</div>
+            
+            <button id="btn-start" onclick="startGameAsHost()" style="display:none;">Start Game</button>
         </div>
     </div>
 
-    <!-- MOBILE CONTROLS -->
-    <div id="mobile-controls">
-        <div class="d-pad">
-            <div class="m-btn btn-up" id="m-hd">⇈</div> <!-- Hard Drop -->
-            <div class="m-btn btn-left" id="m-l">←</div>
-            <div class="m-btn btn-down" id="m-d">↓</div>
-            <div class="m-btn btn-right" id="m-r">→</div>
-        </div>
-        <div class="action-pad">
-            <div class="m-btn" id="m-ccw">↺</div>
-            <div class="m-btn" id="m-cw">↻</div>
-            <div class="m-btn" style="grid-column: span 2;" id="m-hold">HOLD</div>
+    <!-- 3. GAME SCREEN -->
+    <div id="screen-game" class="screen">
+        <div id="game-layout">
+            
+            <!-- Opponents Grid -->
+            <div id="opponents-area">
+                <!-- Opponent cards generated here -->
+            </div>
+
+            <!-- Your Board Center -->
+            <div id="my-area">
+                <div class="side-panel">
+                    <div class="info-box">
+                        <div class="info-title">Hold (Shift)</div>
+                        <canvas id="canvas-hold" width="80" height="80"></canvas>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-title">Score</div>
+                        <div class="info-value" id="my-score">0</div>
+                    </div>
+                </div>
+
+                <div class="main-canvas-container">
+                    <canvas id="canvas-main" width="240" height="480"></canvas>
+                </div>
+
+                <div class="side-panel">
+                    <div class="info-box">
+                        <div class="info-title">Next</div>
+                        <canvas id="canvas-next" width="80" height="80"></canvas>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
     <script>
         // ==========================================
-        // MULTIPLAYER (PEERJS) LOGIC
+        // UI & STATE MANAGEMENT
         // ==========================================
-        let peer, connection;
-        let isMultiplayer = false;
-        let myId = "";
-
-        const setStatus = (msg, color="#fff") => {
-            const el = document.getElementById('status');
-            el.innerText = msg;
-            el.style.color = color;
-        };
-
-        function hostGame() {
-            document.getElementById('menu-main').style.display = 'none';
-            document.getElementById('menu-host').style.display = 'block';
-            
-            myId = Math.floor(10000 + Math.random() * 90000).toString();
-            document.getElementById('room-id-display').innerText = myId;
-            setStatus("Waiting for opponent...", "#00ffcc");
-
-            peer = new Peer(myId);
-            peer.on('connection', conn => {
-                connection = conn;
-                initConnection();
-            });
+        let myName = "";
+        let myPeerId = "";
+        let isHost = false;
+        
+        const showError = (msg) => {
+            const err = document.getElementById('error-msg');
+            err.innerText = msg;
+            err.style.display = 'block';
+            setTimeout(() => err.style.display = 'none', 3000);
         }
 
-        function joinGame() {
-            const roomId = document.getElementById('join-id').value.trim();
-            if(roomId.length !== 5) return alert("Enter 5-digit code");
-            
-            setStatus("Connecting...", "#ff0055");
-            peer = new Peer();
-            peer.on('open', () => {
-                connection = peer.connect(roomId);
-                connection.on('open', initConnection);
-                connection.on('error', () => setStatus("Connection failed", "red"));
-            });
-        }
-
-        function initConnection() {
-            isMultiplayer = true;
-            setStatus("Connected! MATCH START", "#00ffcc");
-            document.getElementById('menu').style.display = 'none';
-            document.getElementById('game-wrapper').style.display = 'flex';
-            
-            connection.on('data', data => {
-                if(data.type === 'state') updateRemoteState(data);
-            });
-
-            startGame();
-        }
-
-        function copyId() {
-            navigator.clipboard.writeText(myId);
-        }
-
-        function broadcastState() {
-            if(!isMultiplayer || !connection) return;
-            connection.send({
-                type: 'state',
-                arena: arena,
-                player: player,
-                ghostY: getGhostY(),
-                hold: holdPiece,
-                next: nextPiece,
-                score: player.score
-            });
+        const switchScreen = (id) => {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
         }
 
         // ==========================================
-        // TETRIS ENGINE
+        // NETWORKING (WebRTC / PeerJS)
+        // Hub & Spoke: All peers connect to Host. Host broadcasts.
+        // ==========================================
+        let peer;
+        let hostConnection; // For peers connecting to host
+        let peerConnections = {}; // For host managing peers
+        let playersData = {}; // { id: { name, score, arena, status } }
+
+        function initPeer(id, onOpen) {
+            peer = new Peer(id);
+            peer.on('open', onOpen);
+            peer.on('error', err => {
+                showError("Connection error. Try again.");
+                switchScreen('screen-setup');
+            });
+        }
+
+        // --- HOST LOGIC ---
+        function createRoom() {
+            myName = document.getElementById('username').value.trim();
+            if(!myName) return showError("Enter a name");
+
+            const roomId = Math.floor(10000 + Math.random() * 90000).toString();
+            isHost = true;
+            
+            initPeer(roomId, (id) => {
+                myPeerId = id;
+                playersData[myPeerId] = { name: myName, score: 0, status: 'lobby' };
+                
+                document.getElementById('lobby-code').innerText = id;
+                document.getElementById('lobby-code-area').style.display = 'block';
+                document.getElementById('btn-start').style.display = 'block';
+                document.getElementById('lobby-status').style.display = 'none';
+                
+                updateLobbyUI();
+                switchScreen('screen-lobby');
+
+                // Handle incoming peers
+                peer.on('connection', conn => {
+                    conn.on('open', () => {
+                        const peerName = conn.metadata.name;
+                        // Name validation
+                        const isTaken = Object.values(playersData).some(p => p.name.toLowerCase() === peerName.toLowerCase());
+                        if(isTaken) {
+                            conn.send({ type: 'rejected', reason: 'Name is already taken in this room.' });
+                            setTimeout(() => conn.close(), 500);
+                            return;
+                        }
+
+                        // Accept
+                        peerConnections[conn.peer] = conn;
+                        playersData[conn.peer] = { name: peerName, score: 0, status: 'lobby' };
+                        
+                        conn.send({ type: 'accepted', myId: conn.peer });
+                        broadcastLobby();
+
+                        // Listen to peer data
+                        conn.on('data', data => {
+                            if(data.type === 'state_update') {
+                                playersData[conn.peer].arena = data.arena;
+                                playersData[conn.peer].score = data.score;
+                                playersData[conn.peer].status = data.status;
+                                broadcastGameState(); // relay to everyone else
+                            }
+                        });
+
+                        conn.on('close', () => {
+                            delete peerConnections[conn.peer];
+                            delete playersData[conn.peer];
+                            broadcastLobby();
+                        });
+                    });
+                });
+            });
+        }
+
+        function broadcastLobby() {
+            const list = Object.keys(playersData).map(id => ({ id, name: playersData[id].name }));
+            Object.values(peerConnections).forEach(c => c.send({ type: 'lobby_update', players: list }));
+            updateLobbyUI();
+        }
+
+        function broadcastGameState() {
+            // Compress state to send minimal required data
+            const state = {};
+            for(let id in playersData) {
+                if(id !== myPeerId) {
+                    state[id] = { arena: playersData[id].arena, score: playersData[id].score, status: playersData[id].status };
+                }
+            }
+            Object.values(peerConnections).forEach(c => c.send({ type: 'game_sync', state }));
+            renderOpponents(state);
+        }
+
+        // --- PEER LOGIC ---
+        function joinRoom() {
+            myName = document.getElementById('username').value.trim();
+            const code = document.getElementById('join-code').value.trim();
+            if(!myName) return showError("Enter a name");
+            if(code.length !== 5) return showError("Invalid 5-digit code");
+
+            initPeer(null, () => {
+                hostConnection = peer.connect(code, { metadata: { name: myName } });
+                
+                hostConnection.on('open', () => {
+                    hostConnection.on('data', data => {
+                        if(data.type === 'rejected') {
+                            showError(data.reason);
+                            peer.destroy();
+                        }
+                        else if(data.type === 'accepted') {
+                            myPeerId = data.myId;
+                            switchScreen('screen-lobby');
+                        }
+                        else if(data.type === 'lobby_update') {
+                            playersData = {};
+                            data.players.forEach(p => playersData[p.id] = p);
+                            updateLobbyUI();
+                        }
+                        else if(data.type === 'start_game') {
+                            setupOpponentCanvases();
+                            switchScreen('screen-game');
+                            startGameEngine();
+                        }
+                        else if(data.type === 'game_sync') {
+                            renderOpponents(data.state);
+                        }
+                    });
+
+                    hostConnection.on('close', () => {
+                        alert("Host disconnected.");
+                        location.reload();
+                    });
+                });
+            });
+        }
+
+        function updateLobbyUI() {
+            const list = document.getElementById('player-list');
+            list.innerHTML = '';
+            Object.values(playersData).forEach(p => {
+                const el = document.createElement('div');
+                el.className = 'player-item';
+                el.innerText = p.name + (p.name === myName ? ' (You)' : '');
+                list.appendChild(el);
+            });
+        }
+
+        function startGameAsHost() {
+            Object.values(peerConnections).forEach(c => c.send({ type: 'start_game' }));
+            setupOpponentCanvases();
+            switchScreen('screen-game');
+            startGameEngine();
+        }
+
+        // Sends local game state to host (or processes it if I am host)
+        function syncLocalState() {
+            const combinedMatrix = createMatrix(COLS, ROWS);
+            // Combine fixed blocks
+            for(let y=0; y<ROWS; y++){
+                for(let x=0; x<COLS; x++) combinedMatrix[y][x] = arena[y][x];
+            }
+            // Overlay current piece
+            if(player.matrix) {
+                player.matrix.forEach((row, y) => {
+                    row.forEach((value, x) => {
+                        if(value !== 0 && combinedMatrix[y + player.pos.y]) {
+                            combinedMatrix[y + player.pos.y][x + player.pos.x] = value;
+                        }
+                    });
+                });
+            }
+
+            if(isHost) {
+                playersData[myPeerId].arena = combinedMatrix;
+                playersData[myPeerId].score = player.score;
+                broadcastGameState();
+            } else {
+                hostConnection.send({ type: 'state_update', arena: combinedMatrix, score: player.score, status: 'playing' });
+            }
+        }
+
+
+        // ==========================================
+        // DYNAMIC RENDERING FOR OPPONENTS
+        // ==========================================
+        const opponentCtxs = {};
+
+        function setupOpponentCanvases() {
+            const container = document.getElementById('opponents-area');
+            container.innerHTML = '';
+            
+            for(let id in playersData) {
+                if(id === myPeerId) continue;
+                
+                const card = document.createElement('div');
+                card.className = 'opponent-card';
+                
+                const nameLabel = document.createElement('div');
+                nameLabel.className = 'opponent-name';
+                nameLabel.innerText = playersData[id].name;
+                
+                const canvas = document.createElement('canvas');
+                canvas.className = 'opponent-canvas';
+                canvas.width = 100; // Scaled down
+                canvas.height = 200;
+                
+                const scoreLabel = document.createElement('div');
+                scoreLabel.className = 'opponent-name';
+                scoreLabel.style.marginTop = '8px';
+                scoreLabel.id = `score-${id}`;
+                scoreLabel.innerText = '0';
+
+                card.appendChild(nameLabel);
+                card.appendChild(canvas);
+                card.appendChild(scoreLabel);
+                container.appendChild(card);
+
+                const ctx = canvas.getContext('2d');
+                ctx.scale(10, 10); // 100px / 10 cols = 10px per block
+                opponentCtxs[id] = ctx;
+            }
+        }
+
+        function renderOpponents(states) {
+            for(let id in states) {
+                if(id === myPeerId) continue;
+                const ctx = opponentCtxs[id];
+                if(!ctx) continue;
+                
+                ctx.fillStyle = '#0f1115';
+                ctx.fillRect(0, 0, COLS, ROWS);
+                
+                if(states[id].arena) {
+                    drawMatrix(states[id].arena, {x:0, y:0}, ctx);
+                }
+                
+                const scoreEl = document.getElementById(`score-${id}`);
+                if(scoreEl) scoreEl.innerText = states[id].score;
+            }
+        }
+
+        // ==========================================
+        // TETRIS ENGINE WITH ADVANCED MECHANICS
         // ==========================================
         const COLS = 10, ROWS = 20, BLOCK_SIZE = 24;
+        const ctxMain = document.getElementById('canvas-main').getContext('2d');
+        const ctxHold = document.getElementById('canvas-hold').getContext('2d');
+        const ctxNext = document.getElementById('canvas-next').getContext('2d');
         
-        // Contexts
-        const ctxMain = document.getElementById('main-canvas').getContext('2d');
-        const ctxHold = document.getElementById('hold-canvas').getContext('2d');
-        const ctxNext = document.getElementById('next-canvas').getContext('2d');
-        
-        const rctxMain = document.getElementById('r-main-canvas').getContext('2d');
-        const rctxHold = document.getElementById('r-hold-canvas').getContext('2d');
-        const rctxNext = document.getElementById('r-next-canvas').getContext('2d');
+        ctxMain.scale(BLOCK_SIZE, BLOCK_SIZE);
+        ctxHold.scale(20, 20);
+        ctxNext.scale(20, 20);
 
-        [ctxMain, rctxMain].forEach(ctx => ctx.scale(BLOCK_SIZE, BLOCK_SIZE));
-        [ctxHold, ctxNext, rctxHold, rctxNext].forEach(ctx => ctx.scale(20, 20)); // scale for side panels
-
-        // Tetr.io Color Palette
+        // Professional Color Palette (Flat & Clean)
         const colors = [
             null,
-            '#ff0f0f', // Z - Red
-            '#ff7f00', // L - Orange
-            '#ffe138', // O - Yellow
-            '#0f9bd7', // J - Blue
-            '#2141c6', // I - Cyan (Adjusted to visible blue)
-            '#59b101', // S - Green
-            '#af298a'  // T - Purple
+            '#ef4444', // Z - Red
+            '#f97316', // L - Orange
+            '#eab308', // O - Yellow
+            '#3b82f6', // J - Blue
+            '#06b6d4', // I - Cyan
+            '#22c55e', // S - Green
+            '#a855f7'  // T - Purple
         ];
-        // Replacing Cyan with lighter blue for visual pop
-        colors[5] = '#00ffff'; 
 
         const pieces = {
             'Z': [[1,1,0],[0,1,1],[0,0,0]],
@@ -375,24 +555,34 @@
             'T': [[0,7,0],[7,7,7],[0,0,0]]
         };
 
+        function createMatrix(w, h) {
+            const m = [];
+            while(h--) m.push(new Array(w).fill(0));
+            return m;
+        }
+
         let arena = createMatrix(COLS, ROWS);
+        let player = { pos: {x: 0, y: 0}, matrix: null, score: 0 };
         let bag = [];
         let nextPiece = null;
         let holdPiece = null;
         let canHold = true;
         let gameRunning = false;
 
-        const player = { pos: {x: 0, y: 0}, matrix: null, score: 0 };
+        // Advanced Mechanics Timers
+        let dropInterval = 1000;
+        let lockDelayLimit = 500; // ms
+        let lockTimer = 0;
+        let isLocking = false;
+        
+        // Input Handling (DAS & ARR)
+        const keys = { left: false, right: false, down: false };
+        let dasTimer = 0;
+        const DAS = 170; // Delayed Auto Shift (ms)
+        const ARR = 50;  // Auto Repeat Rate (ms)
 
-        function createMatrix(w, h) {
-            const m = [];
-            while (h--) m.push(new Array(w).fill(0));
-            return m;
-        }
-
-        // 7-Bag Randomizer
-        function getNextBagPiece() {
-            if (bag.length === 0) {
+        function getBagPiece() {
+            if(bag.length === 0) {
                 bag = ['I','J','L','O','S','T','Z'];
                 bag.sort(() => Math.random() - 0.5);
             }
@@ -400,158 +590,181 @@
         }
 
         function resetPlayer() {
-            if(!nextPiece) nextPiece = getNextBagPiece();
+            if(!nextPiece) nextPiece = getBagPiece();
             player.matrix = nextPiece;
-            nextPiece = getNextBagPiece();
+            nextPiece = getBagPiece();
             player.pos.y = 0;
             player.pos.x = Math.floor(COLS/2) - Math.floor(player.matrix[0].length/2);
             canHold = true;
+            isLocking = false;
+            lockTimer = 0;
 
             if (collide(arena, player)) {
+                // Game Over
                 arena.forEach(row => row.fill(0));
                 player.score = 0;
                 holdPiece = null;
             }
-            broadcastState();
+            syncLocalState();
         }
 
         function hold() {
-            if (!canHold) return;
-            const current = player.matrix;
-            if (holdPiece) {
+            if(!canHold) return;
+            const cur = player.matrix;
+            if(holdPiece) {
                 player.matrix = holdPiece;
-                holdPiece = current;
+                holdPiece = cur;
                 player.pos.y = 0;
                 player.pos.x = Math.floor(COLS/2) - Math.floor(player.matrix[0].length/2);
             } else {
-                holdPiece = current;
+                holdPiece = cur;
                 resetPlayer();
             }
             canHold = false;
-            broadcastState();
+            isLocking = false;
+            syncLocalState();
         }
 
-        // --- COLLISION & MOVEMENT ---
         function collide(board, obj) {
             const [m, o] = [obj.matrix, obj.pos];
-            for (let y = 0; y < m.length; ++y) {
-                for (let x = 0; x < m[y].length; ++x) {
-                    if (m[y][x] !== 0 && (board[y + o.y] && board[y + o.y][x + o.x]) !== 0) {
-                        return true;
-                    }
+            for(let y=0; y<m.length; ++y) {
+                for(let x=0; x<m[y].length; ++x) {
+                    if(m[y][x] !== 0 && (board[y + o.y] && board[y + o.y][x + o.x]) !== 0) return true;
                 }
             }
             return false;
         }
 
-        function merge(board, obj) {
-            obj.matrix.forEach((row, y) => {
-                row.forEach((value, x) => {
-                    if (value !== 0) board[y + obj.pos.y][x + obj.pos.x] = value;
+        function merge() {
+            player.matrix.forEach((row, y) => {
+                row.forEach((val, x) => {
+                    if(val !== 0) arena[y + player.pos.y][x + player.pos.x] = val;
                 });
             });
         }
 
         function sweep() {
-            let rowCount = 1;
-            outer: for (let y = arena.length - 1; y >= 0; --y) {
-                for (let x = 0; x < arena[y].length; ++x) {
-                    if (arena[y][x] === 0) continue outer;
+            let lines = 0;
+            outer: for(let y = ROWS - 1; y >= 0; --y) {
+                for(let x = 0; x < COLS; ++x) {
+                    if(arena[y][x] === 0) continue outer;
                 }
                 const row = arena.splice(y, 1)[0].fill(0);
                 arena.unshift(row);
                 ++y;
-                player.score += rowCount * 100;
-                rowCount *= 2;
+                lines++;
             }
-            document.getElementById('local-score').innerText = player.score;
+            if(lines > 0) {
+                player.score += (lines === 1 ? 100 : lines === 2 ? 300 : lines === 3 ? 500 : 800);
+                document.getElementById('my-score').innerText = player.score;
+            }
         }
 
-        function move(dir) {
+        // Action Handlers
+        function attemptMove(dir) {
             player.pos.x += dir;
-            if (collide(arena, player)) player.pos.x -= dir;
-            broadcastState();
+            if(collide(arena, player)) {
+                player.pos.x -= dir;
+                return false;
+            }
+            // If locking, movement resets the lock timer
+            if(isLocking) lockTimer = 0;
+            checkLockCondition();
+            syncLocalState();
+            return true;
         }
 
-        function drop() {
+        function checkLockCondition() {
+            // Check if piece is touching ground
             player.pos.y++;
-            if (collide(arena, player)) {
-                player.pos.y--;
-                merge(arena, player);
-                sweep();
-                resetPlayer();
+            if(collide(arena, player)) {
+                isLocking = true;
+            } else {
+                isLocking = false;
+                lockTimer = 0;
             }
-            dropCounter = 0;
-            broadcastState();
+            player.pos.y--;
         }
 
-        function getGhostY() {
-            let ghostY = player.pos.y;
-            while (!collide(arena, { matrix: player.matrix, pos: { x: player.pos.x, y: ghostY + 1 } })) {
-                ghostY++;
+        function lockPiece() {
+            merge();
+            sweep();
+            resetPlayer();
+        }
+
+        function attemptDrop() {
+            player.pos.y++;
+            if(collide(arena, player)) {
+                player.pos.y--;
+                if(!isLocking) {
+                    isLocking = true;
+                    lockTimer = 0;
+                }
+            } else {
+                isLocking = false;
+                lockTimer = 0;
+                player.score += 1; // score for soft drop
             }
-            return ghostY;
+            syncLocalState();
         }
 
         function hardDrop() {
-            player.pos.y = getGhostY();
-            merge(arena, player);
-            sweep();
-            resetPlayer();
-            dropCounter = 0;
-            broadcastState();
+            while(!collide(arena, player)) player.pos.y++;
+            player.pos.y--;
+            player.score += 10;
+            lockPiece();
+            syncLocalState();
         }
 
         function rotate(dir) {
             const pos = player.pos.x;
             let offset = 1;
             // Transpose & Reverse
-            for (let y = 0; y < player.matrix.length; ++y) {
-                for (let x = 0; x < y; ++x) {
+            for(let y=0; y<player.matrix.length; ++y) {
+                for(let x=0; x<y; ++x) {
                     [player.matrix[x][y], player.matrix[y][x]] = [player.matrix[y][x], player.matrix[x][y]];
                 }
             }
-            if (dir > 0) player.matrix.forEach(r => r.reverse());
+            if(dir > 0) player.matrix.forEach(r => r.reverse());
             else player.matrix.reverse();
             
-            // Wall Kick logic
-            while (collide(arena, player)) {
+            // Wall Kicks
+            while(collide(arena, player)) {
                 player.pos.x += offset;
                 offset = -(offset + (offset > 0 ? 1 : -1));
-                if (offset > player.matrix[0].length) {
-                    // Undo rotation if failed
+                if(offset > player.matrix[0].length) {
+                    // Revert
                     rotate(-dir);
                     player.pos.x = pos;
                     return;
                 }
             }
-            broadcastState();
+            if(isLocking) lockTimer = 0;
+            checkLockCondition();
+            syncLocalState();
         }
 
-        // --- DRAWING ---
-        function drawGrid(ctx, w, h) {
-            ctx.lineWidth = 0.05;
-            ctx.strokeStyle = '#222';
-            for(let i=0; i<=w; i++){ ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,h); ctx.stroke(); }
-            for(let i=0; i<=h; i++){ ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(w,i); ctx.stroke(); }
+        function getGhostY() {
+            let ghostY = player.pos.y;
+            while(!collide(arena, { matrix: player.matrix, pos: {x: player.pos.x, y: ghostY + 1} })) {
+                ghostY++;
+            }
+            return ghostY;
         }
 
+        // Render Helpers
         function drawMatrix(matrix, offset, ctx, alpha=1) {
             if(!matrix) return;
             matrix.forEach((row, y) => {
-                row.forEach((value, x) => {
-                    if (value !== 0) {
+                row.forEach((val, x) => {
+                    if(val !== 0) {
                         ctx.globalAlpha = alpha;
-                        ctx.fillStyle = colors[value];
+                        ctx.fillStyle = colors[val];
                         ctx.fillRect(x + offset.x, y + offset.y, 1, 1);
-                        
-                        // Inner Glow / Bevel
-                        ctx.fillStyle = 'rgba(255,255,255,0.3)';
-                        ctx.fillRect(x + offset.x, y + offset.y, 1, 0.1); // top
-                        ctx.fillRect(x + offset.x, y + offset.y, 0.1, 1); // left
-                        ctx.fillStyle = 'rgba(0,0,0,0.4)';
-                        ctx.fillRect(x + offset.x, y + offset.y + 0.9, 1, 0.1); // bottom
-                        ctx.fillRect(x + offset.x + 0.9, y + offset.y, 0.1, 1); // right
+                        // Clean flat borders instead of neon
+                        ctx.lineWidth = 0.05;
+                        ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+                        ctx.strokeRect(x + offset.x, y + offset.y, 1, 1);
                         ctx.globalAlpha = 1;
                     }
                 });
@@ -559,105 +772,105 @@
         }
 
         function drawBoxPiece(matrix, ctx) {
-            ctx.fillStyle = '#000';
+            ctx.fillStyle = 'var(--surface)';
             ctx.fillRect(0,0,4,4);
             if(!matrix) return;
-            // Center the piece in the 4x4 mini box
-            const offset = {
-                x: (4 - matrix[0].length)/2,
-                y: (4 - matrix.length)/2
-            };
+            const offset = { x: (4 - matrix[0].length)/2, y: (4 - matrix.length)/2 };
             drawMatrix(matrix, offset, ctx);
         }
 
-        function drawLocal() {
-            ctxMain.fillStyle = '#0a0a0a';
+        function renderLocal() {
+            ctxMain.fillStyle = 'var(--bg-color)';
             ctxMain.fillRect(0, 0, COLS, ROWS);
-            drawGrid(ctxMain, COLS, ROWS);
+            
+            // Draw faint grid
+            ctxMain.strokeStyle = 'var(--border)';
+            ctxMain.lineWidth = 0.02;
+            for(let i=0; i<=COLS; i++){ ctxMain.beginPath(); ctxMain.moveTo(i,0); ctxMain.lineTo(i,ROWS); ctxMain.stroke(); }
+            for(let i=0; i<=ROWS; i++){ ctxMain.beginPath(); ctxMain.moveTo(0,i); ctxMain.lineTo(COLS,i); ctxMain.stroke(); }
 
             drawMatrix(arena, {x:0, y:0}, ctxMain);
-            // Draw Ghost
-            drawMatrix(player.matrix, {x: player.pos.x, y: getGhostY()}, ctxMain, 0.2);
-            // Draw Player
+            drawMatrix(player.matrix, {x: player.pos.x, y: getGhostY()}, ctxMain, 0.2); // Ghost
             drawMatrix(player.matrix, player.pos, ctxMain);
 
             drawBoxPiece(holdPiece, ctxHold);
             drawBoxPiece(nextPiece, ctxNext);
         }
 
-        function updateRemoteState(data) {
-            rctxMain.fillStyle = '#0a0a0a';
-            rctxMain.fillRect(0, 0, COLS, ROWS);
-            drawGrid(rctxMain, COLS, ROWS);
-
-            drawMatrix(data.arena, {x:0, y:0}, rctxMain);
-            drawMatrix(data.player.matrix, {x: data.player.pos.x, y: data.ghostY}, rctxMain, 0.2);
-            drawMatrix(data.player.matrix, data.player.pos, rctxMain);
-
-            drawBoxPiece(data.hold, rctxHold);
-            drawBoxPiece(data.next, rctxNext);
-            document.getElementById('remote-score').innerText = data.score;
-        }
-
-        // --- GAME LOOP ---
-        let dropCounter = 0;
+        // Main Game Loop with Delta Time
         let lastTime = 0;
+        let dropCounter = 0;
 
         function update(time = 0) {
             if(!gameRunning) return;
-            const deltaTime = time - lastTime;
+            const dt = time - lastTime;
             lastTime = time;
 
-            dropCounter += deltaTime;
-            if (dropCounter > 1000) drop();
+            // 1. Input Processing (DAS/ARR)
+            if(keys.left || keys.right) {
+                dasTimer += dt;
+                if(dasTimer > DAS) {
+                    let arrTicks = Math.floor((dasTimer - DAS) / ARR);
+                    for(let i=0; i<arrTicks; i++) {
+                        attemptMove(keys.left ? -1 : 1);
+                    }
+                    dasTimer = DAS + ((dasTimer - DAS) % ARR);
+                }
+            } else { dasTimer = 0; }
 
-            drawLocal();
+            // 2. Gravity Drop
+            dropCounter += dt;
+            const currentGravity = keys.down ? dropInterval / 10 : dropInterval; // Soft drop is 10x faster
+            if(dropCounter > currentGravity) {
+                attemptDrop();
+                dropCounter = 0;
+            }
+
+            // 3. Lock Delay Processing
+            if(isLocking) {
+                lockTimer += dt;
+                if(lockTimer >= lockDelayLimit) {
+                    lockPiece();
+                }
+            }
+
+            renderLocal();
             requestAnimationFrame(update);
         }
 
-        function startGame() {
+        function startGameEngine() {
             gameRunning = true;
             resetPlayer();
+            lastTime = performance.now();
             update();
         }
 
-        // --- INPUTS (Desktop & Mobile) ---
+        // Keyboard Inputs
         document.addEventListener('keydown', e => {
             if(!gameRunning) return;
-            switch(e.code) {
-                case 'ArrowLeft': move(-1); break;
-                case 'ArrowRight': move(1); break;
-                case 'ArrowDown': drop(); break;
-                case 'ArrowUp': 
-                case 'KeyX': rotate(1); break;
-                case 'KeyZ': rotate(-1); break;
-                case 'Space': hardDrop(); break;
-                case 'ShiftLeft':
-                case 'ShiftRight':
-                case 'KeyC': hold(); break;
+            
+            // Prevent default scrolling for game keys
+            if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","Space"].includes(e.code)) {
+                e.preventDefault();
             }
+
+            // Movement tracking for DAS
+            if(e.code === 'ArrowLeft' && !keys.left) { keys.left = true; attemptMove(-1); dasTimer = 0; }
+            if(e.code === 'ArrowRight' && !keys.right) { keys.right = true; attemptMove(1); dasTimer = 0; }
+            if(e.code === 'ArrowDown') keys.down = true;
+
+            // Instants
+            if(e.code === 'ArrowUp' || e.code === 'KeyX') rotate(1);
+            if(e.code === 'KeyZ') rotate(-1);
+            if(e.code === 'Space') hardDrop();
+            if(e.code === 'ShiftLeft' || e.code === 'ShiftRight' || e.code === 'KeyC') hold();
         });
 
-        // Mobile Button Handlers
-        const bindBtn = (id, action) => {
-            const btn = document.getElementById(id);
-            if(!btn) return;
-            // Prevent default stops zooming and double-tap issues
-            btn.addEventListener('touchstart', e => { e.preventDefault(); action(); });
-        };
-
-        bindBtn('m-l', () => move(-1));
-        bindBtn('m-r', () => move(1));
-        bindBtn('m-d', drop);
-        bindBtn('m-hd', hardDrop);
-        bindBtn('m-cw', () => rotate(1));
-        bindBtn('m-ccw', () => rotate(-1));
-        bindBtn('m-hold', hold);
-
-        // Prevent mobile scrolling while dragging on the canvas
-        document.addEventListener('touchmove', e => {
-            if(gameRunning) e.preventDefault();
-        }, { passive: false });
+        document.addEventListener('keyup', e => {
+            if(e.code === 'ArrowLeft') keys.left = false;
+            if(e.code === 'ArrowRight') keys.right = false;
+            if(e.code === 'ArrowDown') keys.down = false;
+        });
 
     </script>
 </body>
