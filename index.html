@@ -135,9 +135,9 @@
         button:disabled { background: #334155; opacity: 0.6; cursor: not-allowed; clip-path: none; border-radius: 8px;}
 
         .btn-secondary { background: rgba(255,255,255,0.1); }
-        .btn-secondary:hover { background: rgba(255,255,255,0.15); filter: drop-shadow(0 0 15px rgba(255,255,255,0.2)); }
+        .btn-secondary:hover:not(:disabled) { background: rgba(255,255,255,0.15); filter: drop-shadow(0 0 15px rgba(255,255,255,0.2)); }
         .btn-danger { background: var(--danger); }
-        .btn-danger:hover { background: #F87171; filter: drop-shadow(0 0 15px var(--danger-glow)); }
+        .btn-danger:hover:not(:disabled) { background: #F87171; filter: drop-shadow(0 0 15px var(--danger-glow)); }
 
         .divider { display: flex; align-items: center; margin: 24px 0; color: var(--text-muted); font-size: 13px; font-weight: 800; letter-spacing: 3px;}
         .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid rgba(255,255,255,0.1); margin: 0 16px; }
@@ -222,10 +222,10 @@
             </div>
             <div id="error-msg"></div>
             <input type="text" id="username" placeholder="ENTER GAMERTAG" maxlength="12">
-            <button onclick="createRoom()">Host Match</button>
+            <button id="btn-host" onclick="createRoom()">Host Match</button>
             <div class="divider">OR</div>
             <input type="text" id="join-code" placeholder="ENTER 5-DIGIT CODE" maxlength="5">
-            <button class="btn-secondary" onclick="joinRoom()">Join Match</button>
+            <button id="btn-join" class="btn-secondary" onclick="joinRoom()">Join Match</button>
         </div>
     </div>
 
@@ -336,10 +336,25 @@
         let opponentArenas = {}; // Local cache of opponents' grids { id: matrix }
 
         function initPeer(id, onOpen) {
-            peer = new Peer(id);
+            if (peer) peer.destroy();
+
+            // Providing undefined instead of null allows PeerJS to properly auto-generate random IDs if requested
+            peer = new Peer(id || undefined); 
+            
             peer.on('open', onOpen);
             peer.on('error', err => {
-                showError("Connection error. Ensure code is correct.");
+                console.error("PeerJS Error:", err);
+                let msg = "Connection error. Ensure code is correct.";
+                if (err.type === 'peer-unavailable') msg = "Room not found. Check your code.";
+                else if (err.type === 'unavailable-id') msg = "Code taken. Try again.";
+                
+                showError(msg);
+                
+                document.getElementById('btn-host').innerText = "Host Match";
+                document.getElementById('btn-host').disabled = false;
+                document.getElementById('btn-join').innerText = "Join Match";
+                document.getElementById('btn-join').disabled = false;
+
                 switchScreen('screen-setup');
             });
         }
@@ -348,15 +363,23 @@
             myName = document.getElementById('username').value.trim();
             if(!myName) return showError("Enter a GamerTag");
 
-            const roomId = Math.floor(10000 + Math.random() * 90000).toString();
-            isHost = true;
+            const roomCode = Math.floor(10000 + Math.random() * 90000).toString();
+            // Prefix to prevent collisions on the global PeerJS server with other apps
+            const fullRoomId = "tpro-" + roomCode; 
             
-            initPeer(roomId, (id) => {
+            isHost = true;
+            document.getElementById('btn-host').innerText = "CREATING...";
+            document.getElementById('btn-host').disabled = true;
+            
+            initPeer(fullRoomId, (id) => {
+                document.getElementById('btn-host').innerText = "Host Match";
+                document.getElementById('btn-host').disabled = false;
+
                 myPeerId = id;
                 playersData[myPeerId] = { name: myName, score: 0, status: 'lobby' };
                 opponentArenas[myPeerId] = createMatrix(COLS, ROWS);
                 
-                document.getElementById('lobby-code').innerText = id;
+                document.getElementById('lobby-code').innerText = roomCode;
                 document.getElementById('lobby-code-area').style.display = 'block';
                 document.getElementById('btn-start').style.display = 'block';
                 document.getElementById('lobby-status').style.display = 'none';
@@ -379,10 +402,18 @@
                         broadcastLobby();
 
                         conn.on('data', data => handleHostData(conn.peer, data));
-                        conn.on('close', () => {
-                            delete peerConnections[conn.peer]; delete playersData[conn.peer]; delete opponentArenas[conn.peer];
-                            broadcastLobby(); checkWinCondition();
-                        });
+                        
+                        const handleDisconnect = () => {
+                            if (peerConnections[conn.peer]) {
+                                delete peerConnections[conn.peer]; 
+                                delete playersData[conn.peer]; 
+                                delete opponentArenas[conn.peer];
+                                broadcastLobby(); checkWinCondition();
+                            }
+                        };
+
+                        conn.on('close', handleDisconnect);
+                        conn.on('error', handleDisconnect);
                     });
                 });
             });
@@ -440,9 +471,19 @@
             if(!myName) return showError("Enter a GamerTag");
             if(code.length !== 5) return showError("Invalid 5-digit code");
 
+            isHost = false;
+            document.getElementById('btn-join').innerText = "JOINING...";
+            document.getElementById('btn-join').disabled = true;
+
+            const fullRoomId = "tpro-" + code;
+
             initPeer(null, () => {
-                hostConnection = peer.connect(code, { metadata: { name: myName } });
+                hostConnection = peer.connect(fullRoomId, { metadata: { name: myName }, reliable: true });
+                
                 hostConnection.on('open', () => {
+                    document.getElementById('btn-join').innerText = "Join Match";
+                    document.getElementById('btn-join').disabled = false;
+
                     hostConnection.on('data', data => {
                         if(data.type === 'rejected') { showError(data.reason); peer.destroy(); }
                         else if(data.type === 'accepted') { myPeerId = data.myId; switchScreen('screen-lobby'); }
@@ -459,7 +500,9 @@
                         else if(data.type === 'match_end') { showMatchEnd(data.winner); }
                         else if(data.type === 'back_to_lobby') { resetToLobby(); }
                     });
+
                     hostConnection.on('close', () => { alert("Host disconnected."); location.reload(); });
+                    hostConnection.on('error', () => { alert("Connection lost."); location.reload(); });
                 });
             });
         }
